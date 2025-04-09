@@ -1,0 +1,137 @@
+<!-- src/app/course-detail/course-detail.component.html -->
+<!-- Topbar Start -->
+<div class="topbar bg-dark text-white">
+  <div class="container-fluid">
+    <div class="row py-2 px-lg-5 align-items-center">
+      <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
+        <div class="d-flex align-items-center">
+          <small class="me-3"><i class="fas fa-phone me-2"></i>+012 345 6789</small>
+          <small><i class="fas fa-envelope me-2"></i>info@idealacademy.com</small>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center text-lg-right">
+        <div class="d-flex align-items-center justify-content-center justify-content-lg-end">
+          <a class="text-white px-2" href="https://facebook.com/idealacademy"><i class="fab fa-facebook-f"></i></a>
+          <a class="text-white px-2" href="#"><i class="fab fa-twitter"></i></a>
+          <a class="text-white px-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+          <a class="text-white px-2" href="#"><i class="fab fa-instagram"></i></a>
+          <a class="text-white px-2" href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Topbar End -->
+
+<!-- Navbar Start -->
+<div class="container-fluid p-0">
+  <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5 shadow-sm">
+    <a routerLink="/" class="navbar-brand ml-lg-3">
+      <h1 class="m-0 text-uppercase text-primary">Ideal Academy</h1>
+    </a>
+    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
+      <div class="navbar-nav mx-auto py-0">
+        <a routerLink="/" class="nav-item nav-link">Home</a>
+        <a routerLink="/about" class="nav-item nav-link">About</a>
+        <a routerLink="/courses" class="nav-item nav-link active">Courses</a>
+        <div class="nav-item dropdown">
+          <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+          <div class="dropdown-menu m-0 border-0 shadow-sm">
+            <a routerLink="/detail" class="dropdown-item">Course Detail</a>
+            <a routerLink="/feature" class="dropdown-item">Our Features</a>
+            <a routerLink="/team" class="dropdown-item">Instructors</a>
+            <a routerLink="/testimonial" class="dropdown-item">Testimonial</a>
+          </div>
+        </div>
+        <a routerLink="/contact" class="nav-item nav-link">Contact</a>
+      </div>
+      <a *ngIf="!authService.isLoggedIn()" routerLink="/login" class="btn btn-primary py-2 px-4">Join Us</a>
+      <a *ngIf="authService.isLoggedIn()" (click)="authService.logout()" class="btn btn-primary py-2 px-4">Logout</a>
+    </div>
+  </nav>
+</div>
+<!-- Navbar End -->
+
+<!-- Header Start -->
+<div class="header-section position-relative">
+  <div class="container text-center py-5">
+    <h1 class="text-white display-4 mb-4">Détails de la Formation</h1>
+    <div class="d-flex justify-content-center text-white mb-5">
+      <p class="m-0 text-uppercase"><a class="text-white" routerLink="/">Home</a></p>
+      <span class="px-2">/</span>
+      <p class="m-0 text-uppercase"><a class="text-white" routerLink="/courses">Courses</a></p>
+      <span class="px-2">/</span>
+      <p class="m-0 text-uppercase">Détails</p>
+    </div>
+  </div>
+</div>
+<!-- Header End -->
+
+<!-- Course Detail Start -->
+<div class="container-fluid py-5 bg-light">
+  <div class="container py-5">
+    <div *ngIf="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
+    <div *ngIf="course">
+      <!-- Course Overview -->
+      <div class="row mb-5 align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <div class="course-image">
+            <img [src]="course.image ? 'http://localhost:3000/uploads/' + course.image : 'assets/img/courses-1.jpg'" alt="{{course.title}}" class="img-fluid rounded" (error)="onImageError($event)">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="course-details">
+            <h2 class="course-title">{{ course.title }}</h2>
+            <div class="course-meta mb-4">
+              <p><i class="fas fa-user me-2 text-primary"></i> Formateur: {{ course.instructor }}</p>
+              <p><i class="fas fa-clock me-2 text-primary"></i> Durée: {{ course.duration || 'N/A' }} H </p>
+              <p><i class="fas fa-money-bill-wave me-2 text-primary"></i> Prix: {{ course.price ? course.price + ' TND' : 'Gratuit' }}</p>
+              <p><i class="fas fa-star me-2 text-primary"></i> Évaluation: {{ course.rating || 'N/A' }} <small>(250 avis)</small></p>
+              <p><i class="fas fa-calendar me-2 text-primary"></i> Créé le: {{ course.createdAt | date:'mediumDate' }}</p>
+            </div>
+            <button class="btn btn-primary btn-enroll" (click)="enrollInCourse()">Inscription</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Description -->
+      <div class="course-section mb-5">
+        <h3 class="section-heading">Description de la Formation</h3>
+        <p class="course-description">{{ course.description || 'Aucune description disponible.' }}</p>
+      </div>
+
+      <!-- Course Highlights -->
+      <div class="course-section mb-5">
+        <h3 class="section-heading">Points Forts de la Formation</h3>
+        <ul class="course-highlights">
+          <li><i class="fas fa-check me-2 text-primary"></i> Apprentissage pratique avec des projets réels</li>
+          <li><i class="fas fa-check me-2 text-primary"></i> Support personnalisé par des experts</li>
+          <li><i class="fas fa-check me-2 text-primary"></i> Accès à vie aux ressources du cours</li>
+          <li><i class="fas fa-check me-2 text-primary"></i> Certificat de complétion à la fin</li>
+        </ul>
+      </div>
+
+      <!-- Instructor Bio -->
+      <div class="course-section mb-5">
+        <h3 class="section-heading">À Propos du Formateur</h3>
+        <div class="instructor-bio">
+          <h5>{{ course.instructor }}</h5>
+          <p>Expert en {{ course.title }} avec plus de 10 ans d'expérience dans l'industrie. Passionné par l'enseignement et le partage de connaissances pratiques.</p>
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-section text-center">
+        <h3 class="mb-4">Prêt à Commencer Votre Apprentissage ?</h3>
+        <button class="btn btn-primary btn-enroll btn-lg" (click)="enrollInCourse()">S'inscrire Maintenant</button>
+      </div>
+    </div>
+    <div *ngIf="!course && !errorMessage" class="text-center">
+      <p>Chargement des détails de la formation...</p>
+    </div>
+  </div>
+</div>
+<!-- Course Detail End -->

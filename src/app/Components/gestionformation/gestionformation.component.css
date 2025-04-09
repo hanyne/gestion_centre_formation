@@ -1,0 +1,124 @@
+/* gestionformation.component.css */
+
+/* Container for the table */
+.table-container {
+    margin: 20px 0;
+    overflow-x: auto; /* Ensure the table is responsive on smaller screens */
+  }
+  
+  /* Modern table styling */
+  .modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* Table header */
+  .b {
+    background-color: #007bff; /* Blue background for the header */
+    color: #151313; /* White text for contrast */
+  }
+  
+  /* Table header cells */
+  .modern-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  
+  /* Table rows */
+  .modern-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modern-table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Table cells */
+  .modern-table td {
+    padding: 12px 15px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  /* Image container */
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .image-container img {
+    width: 50px; /* Reduced size */
+    height: 50px;
+    object-fit: cover; /* Ensure the image scales nicely */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+  }
+  
+  .image-container img:hover {
+    transform: scale(1.1); /* Slight zoom on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+  }
+  
+  /* No image placeholder */
+  .no-image {
+    color: #888;
+    font-style: italic;
+  }
+  
+  /* Action buttons */
+  .action-btn {
+    margin-right: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  
+  .action-btn i {
+    margin-right: 5px;
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+  }
+  
+  .action-btn:active {
+    transform: translateY(0); /* Reset on click */
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .btn-danger:hover {
+    background-color: #b02a37;
+    border-color: #b02a37;
+  }
+  
+  /* Disabled button styling */
+  .action-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }

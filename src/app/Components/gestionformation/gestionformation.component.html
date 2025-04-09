@@ -1,0 +1,388 @@
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <h2>Gestion des Formations</h2>
+      <div class="user-info">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Admin">
+        <span>Admin</span>
+      </div>
+    </div>
+  
+    <!-- Courses Management -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Liste des Formations</span>
+            <button class="btn btn-primary" (click)="openCreateModal()" [disabled]="!isAdmin()">
+              <i class="fas fa-plus mr-2"></i> Ajouter une Formation
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Success/Error Messages -->
+            <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+            <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  
+            <!-- Courses Table -->
+           <!-- Courses Table -->
+<div class="table-container">
+    <table class="table modern-table ">
+      <thead class="b">
+        <tr>
+          <th>Titre</th>
+          <th>Description</th>
+          <th>Formateur</th>
+          <th>Durée</th>
+          <th>Prix</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let course of courses">
+          <td>{{ course.title }}</td>
+          <td>{{ course.description }}</td>
+          <td>{{ course.instructor }}</td>
+          <td>{{ course.duration || 'N/A' }}</td>
+          <td>{{ course.price ? course.price + ' TND' : 'N/A' }}</td>
+          <td>
+            <div *ngIf="course.image; else noImage" class="image-container">
+              <img [src]="getImageUrl(course.image)" alt="Course Image" (error)="onImageError($event)">
+            </div>
+            <ng-template #noImage>
+              <span class="no-image">Aucune image</span>
+            </ng-template>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-sm action-btn" (click)="openEditModal(course)" [disabled]="!course._id || !isAdmin()">
+              <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button class="btn btn-danger btn-sm action-btn" (click)="deleteCourse(course._id!)" [disabled]="!course._id || !isAdmin()">
+              <i class="fas fa-trash"></i> Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Create Course Modal -->
+ <!-- Create Course Modal -->
+<!-- Create Course Modal -->
+<div class="modal fade" id="createCourseModal" tabindex="-1" aria-labelledby="createCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createCourseModalLabel">Ajouter une Nouvelle Formation</h5>
+          <button type="button" class="btn-close" (click)="closeModal('createCourseModal')" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form #createForm="ngForm" (ngSubmit)="createCourse()">
+            <div class="mb-3">
+              <label for="createTitle" class="form-label">Titre</label>
+              <input type="text" class="form-control" id="createTitle" [(ngModel)]="newCourse.title" name="title" required #title="ngModel">
+              <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
+                Le titre est requis.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="createDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="createDescription" [(ngModel)]="newCourse.description" name="description" required #description="ngModel"></textarea>
+              <div *ngIf="description.invalid && (description.dirty || description.touched)" class="alert alert-danger">
+                La description est requise.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="createInstructor" class="form-label">Formateur</label>
+              <input type="text" class="form-control" id="createInstructor" [(ngModel)]="newCourse.instructor" name="instructor" required #instructor="ngModel">
+              <div *ngIf="instructor.invalid && (instructor.dirty || instructor.touched)" class="alert alert-danger">
+                Le formateur est requis.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="createDuration" class="form-label">Durée</label>
+              <input type="text" class="form-control" id="createDuration" [(ngModel)]="newCourse.duration" name="duration" placeholder="ex: 3 mois">
+            </div>
+            <div class="mb-3">
+              <label for="createPrice" class="form-label">Prix (TND)</label>
+              <input type="number" class="form-control" id="createPrice" [(ngModel)]="newCourse.price" name="price">
+            </div>
+            <div class="mb-3">
+              <label for="createImage" class="form-label">Image de la Formation</label>
+              <input type="file" class="form-control" id="createImage" (change)="onFileSelected($event, 'newCourse')" accept="image/*">
+              <div *ngIf="newCourseImagePreview" class="mt-2">
+                <img [src]="newCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid">Créer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Course Modal -->
+  <div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCourseModalLabel">Modifier la Formation</h5>
+          <button type="button" class="btn-close" (click)="closeModal('editCourseModal')" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form #editForm="ngForm" (ngSubmit)="updateCourse()">
+            <div class="mb-3">
+              <label for="editTitle" class="form-label">Titre</label>
+              <input type="text" class="form-control" id="editTitle" [(ngModel)]="selectedCourse.title" name="title" required>
+            </div>
+            <div class="mb-3">
+              <label for="editDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="editDescription" [(ngModel)]="selectedCourse.description" name="description" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="editInstructor" class="form-label">Formateur</label>
+              <input type="text" class="form-control" id="editInstructor" [(ngModel)]="selectedCourse.instructor" name="instructor" required>
+            </div>
+            <div class="mb-3">
+              <label for="editDuration" class="form-label">Durée</label>
+              <input type="text" class="form-control" id="editDuration" [(ngModel)]="selectedCourse.duration" name="duration">
+            </div>
+            <div class="mb-3">
+              <label for="editPrice" class="form-label">Prix (TND)</label>
+              <input type="number" class="form-control" id="editPrice" [(ngModel)]="selectedCourse.price" name="price">
+            </div>
+            <div class="mb-3">
+              <label for="editImage" class="form-label">Image de la Formation</label>
+              <input type="file" class="form-control" id="editImage" (change)="onFileSelected($event, 'selectedCourse')" accept="image/*">
+              <div *ngIf="selectedCourseImagePreview" class="mt-2">
+                <img [src]="selectedCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
+              </div>
+              <div *ngIf="selectedCourse.image && !selectedCourseImagePreview" class="mt-2">
+                <img [src]="selectedCourse.image" alt="Current Image" style="max-width: 100%; max-height: 200px;">
+                <p>Image actuelle</p>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">Mettre à Jour</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="/" class="navbar-brand">
+      <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
+    </a>
+    <div class="navbar-nav">
+      <a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
+      <a href="/admin/courses" class="nav-link active"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
+      <a href="/admin/trainers" class="nav-link"><i class="fas fa-user-tie"></i>Formateurs</a>
+      <a href="/admin/students" class="nav-link"><i class="fas fa-users"></i>Étudiants</a>
+      <a href="/admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
+      <a href="/admin/reviews" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
+      <a href="#" class="nav-link" (click)="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+    </div>
+  </div>
+  
+  <style>
+    /* Same styles as the previous dashboard for consistency */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+    }
+  
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 250px;
+      background-color: #1a1a1a;
+      padding-top: 20px;
+      transition: all 0.3s ease;
+    }
+  
+    .sidebar .navbar-brand {
+      padding: 20px;
+      text-align: center;
+    }
+  
+    .sidebar .navbar-brand h1 {
+      font-size: 1.5rem;
+      color: #fff;
+      margin: 0;
+    }
+  
+    .sidebar .nav-link {
+      color: #ccc !important;
+      padding: 15px 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+  
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      color: #007bff !important;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  
+    .sidebar .nav-link i {
+      margin-right: 10px;
+    }
+  
+    .main-content {
+      margin-left: 250px;
+      padding: 30px;
+      min-height: 100vh;
+    }
+  
+    .topbar {
+      background-color: #fff;
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+  
+    .topbar h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  
+    .topbar .user-info {
+      display: flex;
+      align-items: center;
+    }
+  
+    .topbar .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+  
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+  
+    .card:hover {
+      transform: translateY(-5px);
+    }
+  
+    .card-header {
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 15px 15px 0 0;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+  
+    .card-body {
+      padding: 20px;
+    }
+  
+    .table {
+      background-color: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+  
+    .table thead {
+      background-color: #f8f9fa;
+    }
+  
+    .table th,
+    .table td {
+      padding: 15px;
+      vertical-align: middle;
+    }
+  
+    .table .btn {
+      padding: 5px 10px;
+      font-size: 0.9rem;
+    }
+  
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+  
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+  
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+  
+    .modal-content {
+      border-radius: 15px;
+    }
+  
+    .modal-header {
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 15px 15px 0 0;
+    }
+  
+    .modal-body {
+      padding: 20px;
+    }
+  
+    .form-control {
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      transition: border-color 0.3s ease;
+    }
+  
+    .form-control:focus {
+      border-color: #007bff;
+      box-shadow: none;
+    }
+  
+    .form-label {
+      font-weight: 500;
+    }
+  
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+        transform: translateX(-200px);
+      }
+  
+      .sidebar.active {
+        transform: translateX(0);
+      }
+  
+      .main-content {
+        margin-left: 0;
+      }
+  
+      .topbar {
+        padding: 15px;
+      }
+  
+      .topbar h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>

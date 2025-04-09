@@ -1,0 +1,73 @@
+<!-- src/app/enrollment/enrollment.component.html -->
+<!-- ... Topbar, Navbar, Header inchangés ... -->
+
+<!-- Enrollment Form Start -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div *ngIf="course" class="mb-4 text-center">
+            <h2 class="course-title text-primary">{{ course.title }}</h2>
+            <p class="text-muted">
+              <i class="fas fa-user me-2 text-primary"></i> Formateur: {{ course.instructor }} |
+              <i class="fas fa-money-bill-wave me-2 text-primary"></i> Prix: {{ course.price ? course.price + ' TND' : 'Gratuit' }}
+            </p>
+          </div>
+  
+          <div *ngIf="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
+          <div *ngIf="successMessage" class="alert alert-success text-center">{{ successMessage }}</div>
+  
+          <form [formGroup]="enrollmentForm" (ngSubmit)="onSubmit()" class="bg-white p-4 rounded shadow-sm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nom" class="form-label fw-bold">Nom *</label>
+                <input type="text" class="form-control" id="nom" formControlName="nom"
+                       [class.is-invalid]="f['nom'].touched && f['nom'].invalid">
+                <div *ngIf="f['nom'].touched && f['nom'].invalid" class="text-danger small">
+                  Le nom est requis (minimum 2 caractères).
+                </div>
+              </div>
+  
+              <div class="col-md-6 mb-3">
+                <label for="prenom" class="form-label fw-bold">Prénom *</label>
+                <input type="text" class="form-control" id="prenom" formControlName="prenom"
+                       [class.is-invalid]="f['prenom'].touched && f['prenom'].invalid">
+                <div *ngIf="f['prenom'].touched && f['prenom'].invalid" class="text-danger small">
+                  Le prénom est requis (minimum 2 caractères).
+                </div>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label fw-bold">Email *</label>
+                <input type="email" class="form-control" id="email" formControlName="email"
+                       [class.is-invalid]="f['email'].touched && f['email'].invalid">
+                <div *ngIf="f['email'].touched && f['email'].invalid" class="text-danger small">
+                  Veuillez entrer un email valide.
+                </div>
+              </div>
+  
+              <div class="col-md-6 mb-3">
+                <label for="telephone" class="form-label fw-bold">Téléphone (optionnel)</label>
+                <input type="text" class="form-control" id="telephone" formControlName="telephone"
+                       [class.is-invalid]="f['telephone'].touched && f['telephone'].invalid">
+                <div *ngIf="f['telephone'].touched && f['telephone'].invalid" class="text-danger small">
+                  Le numéro doit contenir 8 chiffres.
+                </div>
+              </div>
+            </div>
+  
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary px-4 py-2"
+                      [disabled]="enrollmentForm.invalid || isSubmitting">
+                {{ isSubmitting ? 'Inscription en cours...' : 'Confirmer l\'inscription' }}
+              </button>
+             
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Enrollment Form End -->
