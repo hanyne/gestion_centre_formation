@@ -44,7 +44,9 @@ createCourse(formData: FormData): Observable<Course> {
   }
 
   deleteCourse(id: string): Observable<void> {
+    const headers = this.getHeaders();
     console.log('Deleting course with ID:', id);
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    console.log('Authorization Header:', headers.get('Authorization'));
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
 }

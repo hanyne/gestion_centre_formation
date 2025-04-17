@@ -13,6 +13,7 @@ import { AdminGuard } from './guards/admin.guard';
 import { CoursedetailsComponent } from './components/coursedetails/coursedetails.component';
 import { EnrollementComponent } from './components/enrollement/enrollement.component';
 import { GestionmessagesComponent } from './components/gestionmessages/gestionmessages.component';
+import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -28,6 +29,7 @@ const routes: Routes = [
   { path: 'admin/course', component: GestionformationComponent },
   { path: 'admin/messages', component: GestionmessagesComponent },
   { path: 'enrollment/:id', component: EnrollementComponent },
+  { path: 'admin/review', component: AdminReviewsComponent },
   { path: '', redirectTo: '/courses', pathMatch: 'full' }
     
 ];

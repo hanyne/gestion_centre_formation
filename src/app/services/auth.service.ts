@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:5000/api/auth';
@@ -14,10 +14,10 @@ export class AuthService {
 
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap(response => {
+      tap((response) => {
         if (response.token) {
           localStorage.setItem('token', response.token);
-          localStorage.setItem('role', response.role); // Store role in localStorage
+          localStorage.setItem('role', response.role);
         }
       })
     );
@@ -25,10 +25,10 @@ export class AuthService {
 
   register(email: string, password: string, role: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/register`, { email, password, role }).pipe(
-      tap(response => {
+      tap((response) => {
         if (response.token) {
           localStorage.setItem('token', response.token);
-          localStorage.setItem('role', response.role); // Store role in localStorage
+          localStorage.setItem('role', response.role);
         }
       })
     );
@@ -43,23 +43,19 @@ export class AuthService {
   }
 
   getRole(): string {
-    return localStorage.getItem('role') || 'apprenant'; // Changed 'étudiant' to 'apprenant'
+    return localStorage.getItem('role') || '';
+  }
+
+  isApprenant(): boolean {
+    return this.getRole() === 'apprenant';
   }
 
   isAdmin(): boolean {
     return this.getRole() === 'admin';
   }
 
-  isFormateur(): boolean {
-    return this.getRole() === 'formateur';
-  }
-
-  isApprenant(): boolean { // Changed 'isEtudiant' to 'isApprenant'
-    return this.getRole() === 'apprenant'; // Changed 'étudiant' to 'apprenant'
-  }
-
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('role'); // Remove role on logout
+    localStorage.removeItem('role');
   }
 }

@@ -1,224 +1,202 @@
-<!-- src/app/courses/courses.component.html -->
 <!-- Topbar Start -->
 <div class="container-fluid bg-dark">
-    <div class="row py-2 px-lg-5">
-      <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
-        <div class="d-inline-flex align-items-center text-white">
-          <small><i class="fas fa-phone me-2"></i>+012 345 6789</small>
-          <small class="px-3">|</small>
-          <small><i class="fas fa-envelope me-2"></i>info@idealacademy.com</small>
-        </div>
+  <div class="row py-2 px-lg-5">
+    <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
+      <div class="d-inline-flex align-items-center text-white">
+        <small><i class="fas fa-phone me-2"></i>+012 345 6789</small>
+        <small class="px-3">|</small>
+        <small><i class="fas fa-envelope me-2"></i>info@idealacademy.com</small>
       </div>
-      <div class="col-lg-6 text-center text-lg-right">
-        <div class="d-inline-flex align-items-center">
-          <a class="text-white px-2" href="https://facebook.com/idealacademy">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a class="text-white px-2" href="">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a class="text-white px-2" href="">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a class="text-white px-2" href="">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a class="text-white px-2" href="">
-            <i class="fab fa-youtube"></i>
-          </a>
+    </div>
+    <div class="col-lg-6 text-center text-lg-right">
+      <div class="d-inline-flex align-items-center">
+        <a class="text-white px-2" href="https://facebook.com/idealacademy">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a class="text-white px-2" href="">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a class="text-white px-2" href="">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a class="text-white px-2" href="">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a class="text-white px-2" href="">
+          <i class="fab fa-youtube"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Topbar End -->
+
+<!-- Navbar Start -->
+<app-navbar></app-navbar>
+<!-- Navbar End -->
+
+<!-- Header Start -->
+<div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+  <div class="container text-center py-5">
+    <h1 class="text-white display-1">Courses</h1>
+    <div class="d-inline-flex text-white mb-5">
+      <p class="m-0 text-uppercase"><a class="text-white" routerLink="/">Home</a></p>
+      <i class="fas fa-angles-right pt-1 px-3"></i>
+      <p class="m-0 text-uppercase">Courses</p>
+    </div>
+    <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <button class="btn btn-outline-light bg-white text-body px-4 dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Courses</button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Courses 1</a>
+            <a class="dropdown-item" href="#">Courses 2</a>
+            <a class="dropdown-item" href="#">Courses 3</a>
+          </div>
+        </div>
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterCourses()" class="form-control border-light" style="padding: 30px 25px;" placeholder="Keyword">
+        <div class="input-group-append">
+          <button class="btn btn-secondary px-4 px-lg-5" (click)="filterCourses()">Search</button>
         </div>
       </div>
     </div>
   </div>
-  <!-- Topbar End -->
-  
-  <!-- Navbar Start -->
-  <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-      <a routerLink="/" class="navbar-brand ml-lg-3">
-        <h1 class="m-0 text-uppercase text-primary"><i class="fas fa-book-open-reader me-3"></i>Ideal Academy</h1>
-      </a>
-      <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
-        <div class="navbar-nav mx-auto py-0">
-          <a routerLink="/" class="nav-item nav-link">Home</a>
-          <a routerLink="/about" class="nav-item nav-link">About</a>
-          <a routerLink="/courses" class="nav-item nav-link active">Courses</a>
-          <div class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-            <div class="dropdown-menu m-0">
-              <a routerLink="/detail" class="dropdown-item">Course Detail</a>
-              <a routerLink="/feature" class="dropdown-item">Our Features</a>
-              <a routerLink="/team" class="dropdown-item">Instructors</a>
-              <a routerLink="/testimonial" class="dropdown-item">Testimonial</a>
-            </div>
-          </div>
-          <a routerLink="/contact" class="nav-item nav-link">Contact</a>
-        </div>
-        <a *ngIf="!authService.isLoggedIn()" routerLink="/login" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-        <a *ngIf="authService.isLoggedIn()" (click)="authService.logout()" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
-      </div>
-    </nav>
-  </div>
-  <!-- Navbar End -->
-  
-  <!-- Header Start -->
-  <div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
-    <div class="container text-center py-5">
-      <h1 class="text-white display-1">Courses</h1>
-      <div class="d-inline-flex text-white mb-5">
-        <p class="m-0 text-uppercase"><a class="text-white" routerLink="/">Home</a></p>
-        <i class="fas fa-angles-right pt-1 px-3"></i>
-        <p class="m-0 text-uppercase">Courses</p>
-      </div>
-      <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <button class="btn btn-outline-light bg-white text-body px-4 dropdown-toggle" type="button" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">Courses</button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="#">Courses 1</a>
-              <a class="dropdown-item" href="#">Courses 2</a>
-              <a class="dropdown-item" href="#">Courses 3</a>
-            </div>
-          </div>
-          <input type="text" [(ngModel)]="searchTerm" (input)="filterCourses()" class="form-control border-light" style="padding: 30px 25px;" placeholder="Keyword">
-          <div class="input-group-append">
-            <button class="btn btn-secondary px-4 px-lg-5" (click)="filterCourses()">Search</button>
-          </div>
+</div>
+<!-- Header End -->
+
+<!-- Courses Start -->
+<div class="container-fluid py-5">
+  <div class="container py-5">
+    <div class="row mx-0 justify-content-center">
+      <div class="col-lg-8">
+        <div class="section-title text-center position-relative mb-5">
+          <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Nos Formations</h6>
+          <h1 class="display-4">Découvrez les nouvelles formations d'Ideal Academy</h1>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Header End -->
-  
-  <!-- Courses Start -->
-  <div class="container-fluid py-5">
-    <div class="container py-5">
-      <div class="row mx-0 justify-content-center">
-        <div class="col-lg-8">
-          <div class="section-title text-center position-relative mb-5">
-            <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Nos Formations</h6>
-            <h1 class="display-4">Découvrez les nouvelles formations d'Ideal Academy</h1>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-4 col-md-6 pb-4" *ngFor="let course of filteredCourses">
-          <div class="courses-list-item position-relative d-block overflow-hidden mb-2" [routerLink]="['/course', course._id]">
-            <img class="img-fluid" 
-                 [src]="course.image ? 'http://localhost:3000/uploads/' + course.image : 'assets/img/courses-1.jpg'" 
-                 alt="{{course.title}}" 
-                 (error)="onImageError($event)">
-            <div class="courses-text">
-              <h4 class="text-center text-white px-3">{{course.title}}</h4>
-              <div class="border-top w-100 mt-3">
-                <div class="d-flex justify-content-between p-4">
-                  <span class="text-white"><i class="fas fa-user me-2"></i>{{course.instructor}}</span>
-                  <span class="text-white"><i class="fas fa-star me-2"></i>{{course.rating || 'N/A'}}
-                    <small>(250)</small></span>
-                </div>
-              </div>
-            </div>
-            <div class="admin-actions" *ngIf="authService.isAdmin()">
-              <button class="btn btn-edit" (click)="editCourse(course); $event.stopPropagation()">Modifier</button>
-              <button class="btn btn-delete" *ngIf="course._id" (click)="deleteCourse(course._id); $event.stopPropagation()">Supprimer</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-12">
-          <nav aria-label="Page navigation">
-            <ul class="pagination pagination-lg justify-content-center mb-0">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link rounded-0" (click)="previousPage()" aria-label="Previous">
-                  <span aria-hidden="true">«</span>
-                </a>
-              </li>
-              <li class="page-item" *ngFor="let page of pages" [class.active]="currentPage === page">
-                <a class="page-link" (click)="goToPage(page)">{{page}}</a>
-              </li>
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link rounded-0" (click)="nextPage()" aria-label="Next">
-                  <span aria-hidden="true">»</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Courses End -->
-  
-  <!-- Footer Start -->
-  <div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5" style="margin-top: 90px;">
-    <div class="container mt-5 pt-5">
-      <div class="row">
-        <div class="col-md-6 mb-5">
-          <a routerLink="/" class="navbar-brand">
-            <h1 class="mt-n2 text-uppercase text-white"><i class="fas fa-book-open-reader me-3"></i>Ideal Academy</h1>
-          </a>
-          <p class="m-0">Votre partenaire pour une formation professionnelle de qualité.</p>
-        </div>
-        <div class="col-md-6 mb-5">
-          <h3 class="text-white mb-4">Newsletter</h3>
-          <div class="w-100">
-            <div class="input-group">
-              <input type="text" class="form-control border-light" style="padding: 30px;" placeholder="Votre adresse email">
-              <div class="input-group-append">
-                <button class="btn btn-primary px-4">S'inscrire</button>
+    <div class="row">
+      <div class="col-lg-4 col-md-6 pb-4" *ngFor="let course of filteredCourses">
+        <div class="courses-list-item position-relative d-block overflow-hidden mb-2" [routerLink]="['/course', course._id]">
+          <img class="img-fluid" 
+               [src]="getCourseImageUrl(course.image)" 
+               alt="{{course.title}}">
+          <div class="courses-text">
+            <h4 class="text-center text-white px-3">{{course.title}}</h4>
+            <div class="border-top w-100 mt-3">
+              <div class="d-flex justify-content-between p-4">
+                <span class="text-white">
+                  <i class="fas fa-user me-2"></i>
+                  <ng-container *ngIf="course.instructor; else noInstructor">
+                    {{course.instructor.firstName}} {{course.instructor.lastName}}
+                  </ng-container>
+                  <ng-template #noInstructor>
+                    <span class="text-danger">Formateur non trouvé</span>
+                  </ng-template>
+                </span>
+                <span class="text-white"><i class="fas fa-star me-2"></i>{{course.rating || 'N/A'}}
+                  <small>(250)</small></span>
               </div>
             </div>
           </div>
+          <div class="admin-actions" *ngIf="authService.isAdmin()">
+            <button class="btn btn-edit" (click)="editCourse(course); $event.stopPropagation()">Modifier</button>
+            <button class="btn btn-delete" *ngIf="course._id" (click)="deleteCourse(course._id); $event.stopPropagation()">Supprimer</button>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-4 mb-5">
-          <h3 class="text-white mb-4">Contactez-nous</h3>
-          <p><i class="fas fa-location-dot me-2"></i>123 Rue, Paris, France</p>
-          <p><i class="fas fa-phone me-2"></i>+012 345 67890</p>
-          <p><i class="fas fa-envelope me-2"></i>info@idealacademy.com</p>
-          <div class="d-flex justify-content-start mt-4">
-            <a class="text-white me-4" href="#"><i class="fab fa-2x fa-twitter"></i></a>
-            <a class="text-white me-4" href="#"><i class="fab fa-2x fa-facebook-f"></i></a>
-            <a class="text-white me-4" href="#"><i class="fab fa-2x fa-linkedin-in"></i></a>
-            <a class="text-white" href="#"><i class="fab fa-2x fa-instagram"></i></a>
-          </div>
-        </div>
-        <div class="col-md-4 mb-5">
-          <h3 class="text-white mb-4">Nos Formations</h3>
-          <div class="d-flex flex-column justify-content-start">
-            <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Développement Web</a>
-            <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Design</a>
-            <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Marketing</a>
-          </div>
-        </div>
-        <div class="col-md-4 mb-5">
-          <h3 class="text-white mb-4">Liens Rapides</h3>
-          <div class="d-flex flex-column justify-content-start">
-            <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Politique de confidentialité</a>
-            <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Conditions</a>
-            <a class="text-white-50" href="#"><i class="fas fa-angle-right me-2"></i>Contact</a>
+      <div class="col-12">
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-lg justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link rounded-0" (click)="previousPage()" aria-label="Previous">
+                <span aria-hidden="true">«</span>
+              </a>
+            </li>
+            <li class="page-item" *ngFor="let page of pages" [class.active]="currentPage === page">
+              <a class="page-link" (click)="goToPage(page)">{{page}}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link rounded-0" (click)="nextPage()" aria-label="Next">
+                <span aria-hidden="true">»</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Courses End -->
+
+<!-- Footer Start -->
+<div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5" style="margin-top: 90px;">
+  <div class="container mt-5 pt-5">
+    <div class="row">
+      <div class="col-md-6 mb-5">
+        <a routerLink="/" class="navbar-brand">
+          <h1 class="mt-n2 text-uppercase text-white"><i class="fas fa-book-open-reader me-3"></i>Ideal Academy</h1>
+        </a>
+        <p class="m-0">Votre partenaire pour une formation professionnelle de qualité.</p>
+      </div>
+      <div class="col-md-6 mb-5">
+        <h3 class="text-white mb-4">Newsletter</h3>
+        <div class="w-100">
+          <div class="input-group">
+            <input type="text" class="form-control border-light" style="padding: 30px;" placeholder="Votre adresse email">
+            <div class="input-group-append">
+              <button class="btn btn-primary px-4">S'inscrire</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="container-fluid bg-dark text-white-50 border-top py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 text-center text-md-left mb-3 mb-md-0">
-          <p class="m-0">Copyright © <a class="text-white" href="#">Ideal Academy</a>. Tous droits réservés.</p>
+    <div class="row">
+      <div class="col-md-4 mb-5">
+        <h3 class="text-white mb-4">Contactez-nous</h3>
+        <p><i class="fas fa-location-dot me-2"></i>123 Rue, Paris, France</p>
+        <p><i class="fas fa-phone me-2"></i>+012 345 67890</p>
+        <p><i class="fas fa-envelope me-2"></i>info@idealacademy.com</p>
+        <div class="d-flex justify-content-start mt-4">
+          <a class="text-white me-4" href="#"><i class="fab fa-2x fa-twitter"></i></a>
+          <a class="text-white me-4" href="#"><i class="fab fa-2x fa-facebook-f"></i></a>
+          <a class="text-white me-4" href="#"><i class="fab fa-2x fa-linkedin-in"></i></a>
+          <a class="text-white" href="#"><i class="fab fa-2x fa-instagram"></i></a>
         </div>
-        <div class="col-md-6 text-center text-md-right">
-          <p class="m-0">Designed by <a class="text-white" href="https://htmlcodex.com">HTML Codex</a></p>
+      </div>
+      <div class="col-md-4 mb-5">
+        <h3 class="text-white mb-4">Nos Formations</h3>
+        <div class="d-flex flex-column justify-content-start">
+          <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Développement Web</a>
+          <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Design</a>
+          <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Marketing</a>
+        </div>
+      </div>
+      <div class="col-md-4 mb-5">
+        <h3 class="text-white mb-4">Liens Rapides</h3>
+        <div class="d-flex flex-column justify-content-start">
+          <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Politique de confidentialité</a>
+          <a class="text-white-50 mb-2" href="#"><i class="fas fa-angle-right me-2"></i>Conditions</a>
+          <a class="text-white-50" href="#"><i class="fas fa-angle-right me-2"></i>Contact</a>
         </div>
       </div>
     </div>
   </div>
-  <!-- Footer End -->
-  
-  <!-- Back to Top -->
-  <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i class="fas fa-angles-up"></i></a>
+</div>
+<div class="container-fluid bg-dark text-white-50 border-top py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 text-center text-md-left mb-3 mb-md-0">
+        <p class="m-0">Copyright © <a class="text-white" href="#">Ideal Academy</a>. Tous droits réservés.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-right">
+        <p class="m-0">Designed by <a class="text-white" href="https://htmlcodex.com">HTML Codex</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Footer End -->
+
+<!-- Back to Top -->
+<a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i class="fas fa-angles-up"></i></a>

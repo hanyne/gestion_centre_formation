@@ -1,6 +1,7 @@
-// gestionformation.component.ts
+// src/app/gestionformation/gestionformation.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CourseService } from '../../services/course.service';
+import { UserService } from '../../services/user.service'; // Importer UserService
 import { Course } from '../../model/course';
 import { AuthService } from '../../services/auth.service';
 
@@ -11,11 +12,12 @@ import { AuthService } from '../../services/auth.service';
 })
 export class GestionformationComponent implements OnInit {
   courses: Course[] = [];
+  instructors: any[] = []; // Liste des formateurs
   newCourse: Course = {
     _id: '',
     title: '',
     description: '',
-    instructor: '',
+    instructor: { _id: '', email: '' }, // Initialisation comme objet
     image: '',
     rating: 0,
     duration: '',
@@ -25,15 +27,33 @@ export class GestionformationComponent implements OnInit {
   selectedCourse: Course = { ...this.newCourse };
   successMessage: string = '';
   errorMessage: string = '';
-  newCourseImageFile: File | null = null; // Store the selected file for new course
-  selectedCourseImageFile: File | null = null; // Store the selected file for editing course
-  newCourseImagePreview: string | null = null; // Store the preview URL for new course
-  selectedCourseImagePreview: string | null = null; // Store the preview URL for editing course
+  newCourseImageFile: File | null = null;
+  selectedCourseImageFile: File | null = null;
+  newCourseImagePreview: string | null = null;
+  selectedCourseImagePreview: string | null = null;
 
-  constructor(private courseService: CourseService, private authService: AuthService) {}
+  constructor(
+    private courseService: CourseService,
+    private userService: UserService, // Injecter UserService
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadCourses();
+    this.loadInstructors(); // Charger les formateurs
+  }
+
+  // Charger les formateurs
+  loadInstructors(): void {
+    this.userService.getInstructors().subscribe({
+      next: (instructors) => {
+        this.instructors = instructors;
+      },
+      error: (err) => {
+        this.errorMessage = 'Erreur lors du chargement des formateurs : ' + err.message;
+        console.error('Error loading instructors:', err);
+      }
+    });
   }
 
   // Load all courses
@@ -57,10 +77,10 @@ export class GestionformationComponent implements OnInit {
       const file = input.files[0];
       if (target === 'newCourse') {
         this.newCourseImageFile = file;
-        this.newCourseImagePreview = URL.createObjectURL(file); // Create a preview URL
+        this.newCourseImagePreview = URL.createObjectURL(file);
       } else {
         this.selectedCourseImageFile = file;
-        this.selectedCourseImagePreview = URL.createObjectURL(file); // Create a preview URL
+        this.selectedCourseImagePreview = URL.createObjectURL(file);
       }
     }
   }
@@ -71,8 +91,8 @@ export class GestionformationComponent implements OnInit {
       this.errorMessage = 'Vous devez être administrateur pour ajouter une formation.';
       return;
     }
-    this.newCourseImageFile = null; // Reset file
-    this.newCourseImagePreview = null; // Reset preview
+    this.newCourseImageFile = null;
+    this.newCourseImagePreview = null;
     const modal = document.getElementById('createCourseModal');
     if (modal) {
       modal.classList.add('show');
@@ -85,56 +105,54 @@ export class GestionformationComponent implements OnInit {
     }
   }
 
-// gestionformation.component.ts
-createCourse(): void {
-  if (!this.authService.isAdmin()) {
-    this.errorMessage = 'Vous devez être administrateur pour ajouter une formation.';
-    return;
-  }
-
-  if (!this.newCourse.title || !this.newCourse.description || !this.newCourse.instructor) {
-    this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('title', this.newCourse.title);
-  formData.append('description', this.newCourse.description);
-  formData.append('instructor', this.newCourse.instructor);
-  formData.append('duration', this.newCourse.duration || '');
-  formData.append('price', this.newCourse.price?.toString() || '0');
-  formData.append('rating', (this.newCourse.rating ?? 0).toString());
-  if (this.newCourseImageFile) {
-    formData.append('image', this.newCourseImageFile); // Add the image file
-  }
-
-  this.courseService.createCourse(formData).subscribe({
-    next: (course) => {
-      this.courses.push(course);
-      this.successMessage = 'Formation créée avec succès !';
-      this.newCourse = {
-        _id: '',
-        title: '',
-        description: '',
-        instructor: '',
-        image: '',
-        rating: 0,
-        duration: '',
-        price: 0,
-        createdAt: new Date()
-      };
-      this.newCourseImageFile = null;
-      this.newCourseImagePreview = null;
-      this.closeModal('createCourseModal');
-    },
-    error: (err) => {
-      this.errorMessage = 'Erreur lors de la création de la formation : ' + (err.error?.message || err.message);
-      console.error('Error creating course:', err);
+  createCourse(): void {
+    if (!this.authService.isAdmin()) {
+      this.errorMessage = 'Vous devez être administrateur pour ajouter une formation.';
+      return;
     }
-  });
-}
 
-  // Open edit modal with selected course data
+    if (!this.newCourse.title || !this.newCourse.description || !this.newCourse.instructor._id) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', this.newCourse.title);
+    formData.append('description', this.newCourse.description);
+    formData.append('instructor', this.newCourse.instructor._id); // Envoyer l'ID du formateur
+    formData.append('duration', this.newCourse.duration || '');
+    formData.append('price', this.newCourse.price?.toString() || '0');
+    formData.append('rating', (this.newCourse.rating ?? 0).toString());
+    if (this.newCourseImageFile) {
+      formData.append('image', this.newCourseImageFile);
+    }
+
+    this.courseService.createCourse(formData).subscribe({
+      next: (course) => {
+        this.courses.push(course);
+        this.successMessage = 'Formation créée avec succès !';
+        this.newCourse = {
+          _id: '',
+          title: '',
+          description: '',
+          instructor: { _id: '', email: '' },
+          image: '',
+          rating: 0,
+          duration: '',
+          price: 0,
+          createdAt: new Date()
+        };
+        this.newCourseImageFile = null;
+        this.newCourseImagePreview = null;
+        this.closeModal('createCourseModal');
+      },
+      error: (err) => {
+        this.errorMessage = 'Erreur lors de la création de la formation : ' + (err.error?.message || err.message);
+        console.error('Error creating course:', err);
+      }
+    });
+  }
+
   openEditModal(course: Course): void {
     if (!this.authService.isAdmin()) {
       this.errorMessage = 'Vous devez être administrateur pour modifier une formation.';
@@ -145,8 +163,8 @@ createCourse(): void {
       return;
     }
     this.selectedCourse = { ...course };
-    this.selectedCourseImageFile = null; // Reset file
-    this.selectedCourseImagePreview = null; // Reset preview
+    this.selectedCourseImageFile = null;
+    this.selectedCourseImagePreview = null;
     const modal = document.getElementById('editCourseModal');
     if (modal) {
       modal.classList.add('show');
@@ -159,7 +177,6 @@ createCourse(): void {
     }
   }
 
-  // Update a course
   updateCourse(): void {
     if (!this.authService.isAdmin()) {
       this.errorMessage = 'Vous devez être administrateur pour modifier une formation.';
@@ -174,14 +191,14 @@ createCourse(): void {
     formData.append('_id', this.selectedCourse._id);
     formData.append('title', this.selectedCourse.title);
     formData.append('description', this.selectedCourse.description);
-    formData.append('instructor', this.selectedCourse.instructor);
+    formData.append('instructor', this.selectedCourse.instructor._id); // Envoyer l'ID du formateur
     formData.append('duration', this.selectedCourse.duration || '');
     formData.append('price', this.selectedCourse.price?.toString() || '0');
     formData.append('rating', (this.selectedCourse.rating ?? 0).toString());
     if (this.selectedCourseImageFile) {
-      formData.append('image', this.selectedCourseImageFile); // Add the new image file
+      formData.append('image', this.selectedCourseImageFile);
     } else {
-      formData.append('imagePath', this.selectedCourse.image || ''); // Send the existing image path if no new file is selected
+      formData.append('imagePath', this.selectedCourse.image || '');
     }
 
     this.courseService.updateCourse(formData).subscribe({
@@ -202,7 +219,6 @@ createCourse(): void {
     });
   }
 
-  // Delete a course
   deleteCourse(id: string): void {
     if (!this.authService.isAdmin()) {
       this.errorMessage = 'Vous devez être administrateur pour supprimer une formation.';
@@ -212,7 +228,7 @@ createCourse(): void {
       this.errorMessage = 'ID de la formation manquant pour la suppression.';
       return;
     }
-
+  
     if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
       this.courseService.deleteCourse(id).subscribe({
         next: () => {
@@ -227,7 +243,6 @@ createCourse(): void {
     }
   }
 
-  // Close modal
   closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -241,28 +256,30 @@ createCourse(): void {
       }
     }
   }
-// gestionformation.component.ts
-// gestionformation.component.ts
-getImageUrl(imagePath: string): string {
-  const url = `http://localhost:5000/${imagePath}`;
-  console.log('Image URL:', url); // Debug the URL
-  return url;
-}
 
-onImageError(event: Event): void {
-  console.error('Failed to load image:', (event.target as HTMLImageElement).src);
-  (event.target as HTMLImageElement).style.display = 'none'; // Hide the broken image
-  const parent = (event.target as HTMLImageElement).parentElement;
-  if (parent) {
-    parent.innerHTML = '<span class="no-image">Image non disponible</span>'; // Show a fallback message
+  getImageUrl(imagePath: string | undefined): string {
+    if (!imagePath) {
+      return '';
+    }
+    const path = imagePath.startsWith('uploads/') ? imagePath : `uploads/${imagePath}`;
+    const url = `http://localhost:5000/${path}`;
+    console.log('Image URL:', url);
+    return url;
   }
-}
-  // Logout
+
+  onImageError(event: Event): void {
+    console.error('Failed to load image:', (event.target as HTMLImageElement).src);
+    (event.target as HTMLImageElement).style.display = 'none';
+    const parent = (event.target as HTMLImageElement).parentElement;
+    if (parent) {
+      parent.innerHTML = '<span class="no-image">Image non disponible</span>';
+    }
+  }
+
   logout(): void {
     this.authService.logout();
   }
 
-  // Check if user is admin
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }

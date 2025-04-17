@@ -32,35 +32,7 @@
     <!-- Topbar End -->
 
     <!-- Navbar Start -->
-    <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Idéal Academy</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
-                <div class="navbar-nav mx-auto py-0">
-                    <a href="index.html" class="nav-item nav-link active">Accueil</a>
-                    <a href="/about" class="nav-item nav-link">À Propos</a>
-                    <a href="/course" class="nav-item nav-link">Formations</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-                        <div class="dropdown-menu m-0">
-                            <a href="detail.html" class="dropdown-item">Détails des Formations</a>
-                            <a href="feature.html" class="dropdown-item">Nos Avantages</a>
-                            <a href="team.html" class="dropdown-item">Formateurs</a>
-                            <a href="testimonial.html" class="dropdown-item">Témoignages</a>
-                        </div>
-                    </div>
-                    <a href="/contact" class="nav-item nav-link">Contact</a>
-                    <a href="/register" class="nav-item nav-link">Inscription</a>
-                </div>
-                <a href="" class="btn btn-primary py-2 px-4 d-none d-lg-block">Rejoignez-nous</a>
-            </div>
-        </nav>
-    </div>
+<app-navbar></app-navbar>
     <!-- Navbar End -->
 
     <!-- Header Start -->
@@ -390,6 +362,79 @@
     </div>
     <!-- Testimonial End -->
 
+<!-- src/app/home/home.component.html (review section only) -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+      <div class="section-title text-center position-relative mb-5">
+        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Avis des Clients</h6>
+        <h1 class="display-4">Ce que Nos Apprenants Pensent de Nous</h1>
+      </div>
+  
+      <!-- Review Form for Logged-in Apprenants -->
+      <div *ngIf="isLoggedIn && isApprenant" class="row justify-content-center mb-5">
+        <div class="col-lg-6">
+          <div class="card shadow p-4 animate__animated animate__fadeIn">
+            <h3 class="text-center mb-4">Laissez Votre Avis</h3>
+            <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+              <div class="form-group">
+                <label for="rating">Note</label>
+                <div class="star-rating-input mb-3">
+                  <i *ngFor="let star of [1, 2, 3, 4, 5]"
+                     class="fa fa-star fa-2x"
+                     [ngClass]="{'text-warning': star <= selectedRating, 'text-muted': star > selectedRating}"
+                     (click)="selectRating(star)"
+                     style="cursor: pointer;"></i>
+                </div>
+                <small *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched" class="text-danger">
+                  Veuillez sélectionner une note.
+                </small>
+              </div>
+              <div class="form-group">
+                <label for="comment">Commentaire</label>
+                <textarea id="comment" formControlName="comment" class="form-control modern-textarea" rows="5" placeholder="Votre commentaire..."></textarea>
+                <small *ngIf="reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched" class="text-danger">
+                  Le commentaire doit contenir entre 10 et 500 caractères.
+                </small>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block modern-btn" [disabled]="reviewForm.invalid || isSubmitting">
+                {{ isSubmitting ? 'Soumission...' : 'Soumettre l\'Avis' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Reviews List -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div *ngFor="let review of reviews" class="col-lg-4 col-md-6 mb-4">
+              <div class="card review-item shadow h-100 animate__animated animate__fadeInUp">
+                <div class="card-body p-4">
+                  <div class="d-flex align-items-center mb-4">
+                    <img [src]="review.user.photo ? 'http://localhost:5000/uploads/' + review.user.photo : 'assets/img/default-user.jpg'"
+                         class="rounded-circle mr-4"
+                         style="width: 60px; height: 60px; object-fit: cover;"
+                         alt="User Photo">
+                    <div>
+                      <h5 class="mb-0">{{ review.user.firstName }} {{ review.user.lastName }}</h5>
+                      <div class="star-rating">
+                        <i *ngFor="let star of [1, 2, 3, 4, 5]"
+                           class="fa fa-star"
+                           [ngClass]="{'text-warning': star <= review.rating, 'text-muted': star > review.rating}"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="card-text">{{ review.comment }}</p>
+                  <small class="text-muted">{{ review.createdAt | date:'medium' }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
     <!-- Contact Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">

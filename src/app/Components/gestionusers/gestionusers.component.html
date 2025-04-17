@@ -284,19 +284,18 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <a href="/" class="navbar-brand">
-            <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
-        </a>
-        <div class="navbar-nav">
-            <a href="#" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
-            <a href="admin/course" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
-            <a href="#" class="nav-link"><i class="fas fa-user-tie"></i>Formateurs</a>
-            <a href="#" class="nav-link"><i class="fas fa-users"></i>Étudiants</a>
-            <a href="#" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
-            <a href="#" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
-            <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
-        </div>
-    </div>
+      <a href="/" class="navbar-brand">
+          <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
+      </a>
+      <div class="navbar-nav">
+          <a href="dash" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
+          <a href="admin/course" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
+          <a href="admin/users" class="nav-link"><i class="fas fa-users"></i>Utilisateurs</a>
+          <a href="admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
+          <a href="admin/review" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
+          <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+      </div>
+  </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -337,7 +336,7 @@
               />
             </div>
           </div>
-  
+    
           <div class="form-group">
             <label for="create-password">Mot de passe</label>
             <div class="input-group">
@@ -354,7 +353,7 @@
               />
             </div>
           </div>
-  
+    
           <div class="form-group">
             <label for="create-role">Rôle</label>
             <div class="input-group">
@@ -371,13 +370,91 @@
               </select>
             </div>
           </div>
-  
+    
+          <div class="form-group">
+            <label for="create-firstName">Nom</label>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input
+                type="text"
+                id="create-firstName"
+                name="create-firstName"
+                [(ngModel)]="newUser.firstName"
+                class="form-control"
+                placeholder="Entrez le nom"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="create-lastName">Prénom</label>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input
+                type="text"
+                id="create-lastName"
+                name="create-lastName"
+                [(ngModel)]="newUser.lastName"
+                class="form-control"
+                placeholder="Entrez le prénom"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="create-dateOfBirth">Date de naissance</label>
+            <div class="input-group">
+              <i class="fas fa-calendar-alt"></i>
+              <input
+                type="date"
+                id="create-dateOfBirth"
+                name="create-dateOfBirth"
+                [(ngModel)]="newUser.dateOfBirth"
+                class="form-control"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="create-photo">Photo</label>
+            <div class="input-group">
+              <i class="fas fa-image"></i>
+              <input
+                type="file"
+                id="create-photo"
+                name="create-photo"
+                (change)="onFileSelected($event, 'newUser')"
+                class="form-control"
+                accept="image/jpeg,image/jpg,image/png"
+                required
+              />
+            </div>
+            <div *ngIf="newUserPhotoPreview" class="photo-preview">
+              <img [src]="newUserPhotoPreview" alt="Prévisualisation de la photo" class="img-preview">
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="create-bio">Bio</label>
+            <div class="input-group">
+              <i class="fas fa-info-circle"></i>
+              <textarea
+                id="create-bio"
+                name="create-bio"
+                [(ngModel)]="newUser.bio"
+                class="form-control"
+                placeholder="Entrez une courte bio"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+    
           <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid">
             Ajouter Utilisateur
           </button>
         </form>
       </div>
-  
+    
       <!-- Users List -->
       <div class="users-list" *ngIf="users.length > 0">
         <h2>Liste des Utilisateurs</h2>
@@ -385,15 +462,28 @@
           <table>
             <thead>
               <tr>
+                <th>Photo</th>
+                <th>Nom</th>
+                <th>Prénom</th>
                 <th>Email</th>
                 <th>Rôle</th>
+                <th>Date de naissance</th>
+                <th>Bio</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let user of users">
+                <td>
+                  <img *ngIf="user.photo" [src]="getUserPhotoUrl(user.photo)" alt="{{user.email}}" class="user-photo">
+                  <span *ngIf="!user.photo">Aucune photo</span>
+                </td>
+                <td>{{ user.firstName || 'N/A' }}</td>
+                <td>{{ user.lastName || 'N/A' }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
+                <td>{{ user.dateOfBirth ? (user.dateOfBirth | date:'mediumDate') : 'N/A' }}</td>
+                <td>{{ user.bio || 'N/A' }}</td>
                 <td>
                   <button class="btn btn-edit" (click)="openEditModal(user)">
                     <i class="fas fa-edit"></i> Modifier
@@ -407,13 +497,13 @@
           </table>
         </div>
       </div>
-  
+    
       <!-- Error Message -->
       <div class="error-message" *ngIf="error">
         <i class="fas fa-exclamation-circle"></i> {{ error }}
       </div>
     </main>
-  
+    
     <!-- Edit Modal -->
     <div class="modal" *ngIf="showEditModal">
       <div class="modal-content">
@@ -435,7 +525,7 @@
               />
             </div>
           </div>
-  
+    
           <div class="form-group">
             <label for="edit-password">Mot de passe (laisser vide pour ne pas changer)</label>
             <div class="input-group">
@@ -451,7 +541,7 @@
               />
             </div>
           </div>
-  
+    
           <div class="form-group">
             <label for="edit-role">Rôle</label>
             <div class="input-group">
@@ -468,7 +558,84 @@
               </select>
             </div>
           </div>
-  
+    
+          <div class="form-group">
+            <label for="edit-firstName">Nom</label>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input
+                type="text"
+                id="edit-firstName"
+                name="edit-firstName"
+                [(ngModel)]="selectedUser.firstName"
+                class="form-control"
+                placeholder="Entrez le nom"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="edit-lastName">Prénom</label>
+            <div class="input-group">
+              <i class="fas fa-user"></i>
+              <input
+                type="text"
+                id="edit-lastName"
+                name="edit-lastName"
+                [(ngModel)]="selectedUser.lastName"
+                class="form-control"
+                placeholder="Entrez le prénom"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="edit-dateOfBirth">Date de naissance</label>
+            <div class="input-group">
+              <i class="fas fa-calendar-alt"></i>
+              <input
+                type="date"
+                id="edit-dateOfBirth"
+                name="edit-dateOfBirth"
+                [(ngModel)]="selectedUser.dateOfBirth"
+                class="form-control"
+              />
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="edit-photo">Photo (laisser vide pour ne pas changer)</label>
+            <div class="input-group">
+              <i class="fas fa-image"></i>
+              <input
+                type="file"
+                id="edit-photo"
+                name="edit-photo"
+                (change)="onFileSelected($event, 'selectedUser')"
+                class="form-control"
+                accept="image/jpeg,image/jpg,image/png"
+              />
+            </div>
+            <div *ngIf="selectedUserPhotoPreview" class="photo-preview">
+              <img [src]="selectedUserPhotoPreview" alt="Prévisualisation de la photo" class="img-preview">
+            </div>
+          </div>
+    
+          <div class="form-group">
+            <label for="edit-bio">Bio</label>
+            <div class="input-group">
+              <i class="fas fa-info-circle"></i>
+              <textarea
+                id="edit-bio"
+                name="edit-bio"
+                [(ngModel)]="selectedUser.bio"
+                class="form-control"
+                placeholder="Entrez une courte bio"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+    
           <div class="modal-actions">
             <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">
               Mettre à jour
@@ -479,5 +646,6 @@
           </div>
         </form>
       </div>
+    </div>
     </div>
   </div>

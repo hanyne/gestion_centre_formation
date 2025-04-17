@@ -3,8 +3,36 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
 const User = require('../model/User');
-const { authAdmin } = require('../middleware/auth'); // Import authAdmin
+const { authAdmin } = require('../middleware/auth');
+
+// Configuration de multer pour le téléversement des photos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Dossier où les photos seront stockées
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'user-' + uniqueSuffix + path.extname(file.originalname)); // Nom unique pour chaque fichier
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png/;
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Seules les images JPEG, JPG et PNG sont autorisées'));
+    }
+  }
+});
 
 // Register a new user
 router.post('/register', async (req, res) => {
@@ -107,8 +135,9 @@ router.get('/users/:id', authAdmin, async (req, res) => {
 });
 
 // Create a new user (formateur or apprenant)
-router.post('/users', authAdmin, async (req, res) => {
-  const { email, password, role } = req.body;
+router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
+  const { email, password, role, firstName, lastName, dateOfBirth, bio } = req.body;
+  const photo = req.file ? req.file.filename : undefined;
 
   try {
     if (!['formateur', 'apprenant'].includes(role)) {
@@ -120,10 +149,20 @@ router.post('/users', authAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Utilisateur déjà existant' });
     }
 
+    // Vérification de la présence d'une photo (optionnel dans ce cas)
+    if (!photo) {
+      return res.status(400).json({ message: 'Une photo est requise pour créer un utilisateur.' });
+    }
+
     user = new User({
       email,
       password,
-      role
+      role,
+      firstName,
+      lastName,
+      dateOfBirth,
+      photo, // Enregistrer le nom du fichier de la photo
+      bio
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -131,15 +170,28 @@ router.post('/users', authAdmin, async (req, res) => {
 
     await user.save();
 
-    res.status(201).json({ message: 'Utilisateur créé avec succès', user: { id: user.id, email: user.email, role: user.role } });
+    res.status(201).json({ 
+      message: 'Utilisateur créé avec succès', 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role, 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        dateOfBirth: user.dateOfBirth, 
+        photo: user.photo, 
+        bio: user.bio 
+      } 
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 // Update a user
-router.put('/users/:id', authAdmin, async (req, res) => {
-  const { email, password, role } = req.body;
+router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => {
+  const { email, password, role, firstName, lastName, dateOfBirth, bio } = req.body;
+  const photo = req.file ? req.file.filename : undefined;
 
   try {
     const user = await User.findById(req.params.id);
@@ -157,10 +209,27 @@ router.put('/users/:id', authAdmin, async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
     }
     if (role) user.role = role;
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+    if (photo) user.photo = photo; // Mise à jour de la photo si une nouvelle est téléversée
+    if (bio !== undefined) user.bio = bio;
 
     await user.save();
 
-    res.json({ message: 'Utilisateur mis à jour avec succès', user: { id: user.id, email: user.email, role: user.role } });
+    res.json({ 
+      message: 'Utilisateur mis à jour avec succès', 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role, 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        dateOfBirth: user.dateOfBirth, 
+        photo: user.photo, 
+        bio: user.bio 
+      } 
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

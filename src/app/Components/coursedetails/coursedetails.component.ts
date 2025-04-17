@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { Course } from '../../model/course';
-import { EnrollmentService } from 'src/app/services/enrollement.service';
 
 @Component({
   selector: 'app-coursedetails',
@@ -56,7 +55,12 @@ export class CoursedetailsComponent implements OnInit {
     this.router.navigate(['/enrollment', this.courseId]);
   }
 
-  onImageError(event: any): void {
-    event.target.src = 'assets/img/courses-1.jpg';
+  getCourseImageUrl(image: string | undefined): string {
+    if (image) {
+      // Construire l'URL de l'image à partir du dossier uploads
+      return `http://localhost:5000/uploads/${image}`;
+    }
+    // Si aucune image n'est disponible, utiliser l'image par défaut
+    return 'assets/img/courses-1.jpg';
   }
 }

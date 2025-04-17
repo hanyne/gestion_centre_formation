@@ -42,7 +42,14 @@
         <tr *ngFor="let course of courses">
           <td>{{ course.title }}</td>
           <td>{{ course.description }}</td>
-          <td>{{ course.instructor }}</td>
+          <td>
+            <ng-container *ngIf="course.instructor; else noInstructor">
+              {{ course.instructor.firstName }} {{ course.instructor.lastName }} ({{ course.instructor.email }})
+            </ng-container>
+            <ng-template #noInstructor>
+              <span class="text-danger">Formateur non trouvé</span>
+            </ng-template>
+          </td>
           <td>{{ course.duration || 'N/A' }}</td>
           <td>{{ course.price ? course.price + ' TND' : 'N/A' }}</td>
           <td>
@@ -74,118 +81,128 @@
  <!-- Create Course Modal -->
 <!-- Create Course Modal -->
 <div class="modal fade" id="createCourseModal" tabindex="-1" aria-labelledby="createCourseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="createCourseModalLabel">Ajouter une Nouvelle Formation</h5>
-          <button type="button" class="btn-close" (click)="closeModal('createCourseModal')" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form #createForm="ngForm" (ngSubmit)="createCourse()">
-            <div class="mb-3">
-              <label for="createTitle" class="form-label">Titre</label>
-              <input type="text" class="form-control" id="createTitle" [(ngModel)]="newCourse.title" name="title" required #title="ngModel">
-              <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
-                Le titre est requis.
-              </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createCourseModalLabel">Ajouter une Nouvelle Formation</h5>
+        <button type="button" class="btn-close" (click)="closeModal('createCourseModal')" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form #createForm="ngForm" (ngSubmit)="createCourse()">
+          <div class="mb-3">
+            <label for="createTitle" class="form-label">Titre</label>
+            <input type="text" class="form-control" id="createTitle" [(ngModel)]="newCourse.title" name="title" required #title="ngModel">
+            <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
+              Le titre est requis.
             </div>
-            <div class="mb-3">
-              <label for="createDescription" class="form-label">Description</label>
-              <textarea class="form-control" id="createDescription" [(ngModel)]="newCourse.description" name="description" required #description="ngModel"></textarea>
-              <div *ngIf="description.invalid && (description.dirty || description.touched)" class="alert alert-danger">
-                La description est requise.
-              </div>
+          </div>
+          <div class="mb-3">
+            <label for="createDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="createDescription" [(ngModel)]="newCourse.description" name="description" required #description="ngModel"></textarea>
+            <div *ngIf="description.invalid && (description.dirty || description.touched)" class="alert alert-danger">
+              La description est requise.
             </div>
-            <div class="mb-3">
-              <label for="createInstructor" class="form-label">Formateur</label>
-              <input type="text" class="form-control" id="createInstructor" [(ngModel)]="newCourse.instructor" name="instructor" required #instructor="ngModel">
-              <div *ngIf="instructor.invalid && (instructor.dirty || instructor.touched)" class="alert alert-danger">
-                Le formateur est requis.
-              </div>
+          </div>
+          <div class="mb-3">
+            <label for="createInstructor" class="form-label">Formateur</label>
+            <select class="form-control" id="createInstructor" [(ngModel)]="newCourse.instructor._id" name="instructor" required #instructor="ngModel">
+              <option value="" disabled>Sélectionnez un formateur</option>
+              <option *ngFor="let instructor of instructors" [value]="instructor._id">
+                {{ instructor.firstName }} {{ instructor.lastName }} ({{ instructor.email }})
+              </option>
+            </select>
+            <div *ngIf="instructor.invalid && (instructor.dirty || instructor.touched)" class="alert alert-danger">
+              Le formateur est requis.
             </div>
-            <div class="mb-3">
-              <label for="createDuration" class="form-label">Durée</label>
-              <input type="text" class="form-control" id="createDuration" [(ngModel)]="newCourse.duration" name="duration" placeholder="ex: 3 mois">
+          </div>
+          <div class="mb-3">
+            <label for="createDuration" class="form-label">Durée</label>
+            <input type="text" class="form-control" id="createDuration" [(ngModel)]="newCourse.duration" name="duration" placeholder="ex: 3 mois">
+          </div>
+          <div class="mb-3">
+            <label for="createPrice" class="form-label">Prix (TND)</label>
+            <input type="number" class="form-control" id="createPrice" [(ngModel)]="newCourse.price" name="price">
+          </div>
+          <div class="mb-3">
+            <label for="createImage" class="form-label">Image de la Formation</label>
+            <input type="file" class="form-control" id="createImage" (change)="onFileSelected($event, 'newCourse')" accept="image/*">
+            <div *ngIf="newCourseImagePreview" class="mt-2">
+              <img [src]="newCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
             </div>
-            <div class="mb-3">
-              <label for="createPrice" class="form-label">Prix (TND)</label>
-              <input type="number" class="form-control" id="createPrice" [(ngModel)]="newCourse.price" name="price">
-            </div>
-            <div class="mb-3">
-              <label for="createImage" class="form-label">Image de la Formation</label>
-              <input type="file" class="form-control" id="createImage" (change)="onFileSelected($event, 'newCourse')" accept="image/*">
-              <div *ngIf="newCourseImagePreview" class="mt-2">
-                <img [src]="newCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid">Créer</button>
-          </form>
-        </div>
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid">Créer</button>
+        </form>
       </div>
     </div>
   </div>
+</div>
   <!-- Edit Course Modal -->
-  <div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editCourseModalLabel">Modifier la Formation</h5>
-          <button type="button" class="btn-close" (click)="closeModal('editCourseModal')" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form #editForm="ngForm" (ngSubmit)="updateCourse()">
-            <div class="mb-3">
-              <label for="editTitle" class="form-label">Titre</label>
-              <input type="text" class="form-control" id="editTitle" [(ngModel)]="selectedCourse.title" name="title" required>
+<!-- Edit Course Modal -->
+<div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCourseModalLabel">Modifier la Formation</h5>
+        <button type="button" class="btn-close" (click)="closeModal('editCourseModal')" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" (ngSubmit)="updateCourse()">
+          <div class="mb-3">
+            <label for="editTitle" class="form-label">Titre</label>
+            <input type="text" class="form-control" id="editTitle" [(ngModel)]="selectedCourse.title" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" [(ngModel)]="selectedCourse.description" name="description" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="editInstructor" class="form-label">Formateur</label>
+            <select class="form-control" id="editInstructor" [(ngModel)]="selectedCourse.instructor._id" name="instructor" required>
+              <option value="" disabled>Sélectionnez un formateur</option>
+              <option *ngFor="let instructor of instructors" [value]="instructor._id">
+                {{ instructor.firstName }} {{ instructor.lastName }} ({{ instructor.email }})
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editDuration" class="form-label">Durée</label>
+            <input type="text" class="form-control" id="editDuration" [(ngModel)]="selectedCourse.duration" name="duration">
+          </div>
+          <div class="mb-3">
+            <label for="editPrice" class="form-label">Prix (TND)</label>
+            <input type="number" class="form-control" id="editPrice" [(ngModel)]="selectedCourse.price" name="price">
+          </div>
+          <div class="mb-3">
+            <label for="editImage" class="form-label">Image de la Formation</label>
+            <input type="file" class="form-control" id="editImage" (change)="onFileSelected($event, 'selectedCourse')" accept="image/*">
+            <div *ngIf="selectedCourseImagePreview" class="mt-2">
+              <img [src]="selectedCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
             </div>
-            <div class="mb-3">
-              <label for="editDescription" class="form-label">Description</label>
-              <textarea class="form-control" id="editDescription" [(ngModel)]="selectedCourse.description" name="description" required></textarea>
+            <div *ngIf="selectedCourse.image && !selectedCourseImagePreview" class="mt-2">
+              <img [src]="selectedCourse.image" alt="Current Image" style="max-width: 100%; max-height: 200px;">
+              <p>Image actuelle</p>
             </div>
-            <div class="mb-3">
-              <label for="editInstructor" class="form-label">Formateur</label>
-              <input type="text" class="form-control" id="editInstructor" [(ngModel)]="selectedCourse.instructor" name="instructor" required>
-            </div>
-            <div class="mb-3">
-              <label for="editDuration" class="form-label">Durée</label>
-              <input type="text" class="form-control" id="editDuration" [(ngModel)]="selectedCourse.duration" name="duration">
-            </div>
-            <div class="mb-3">
-              <label for="editPrice" class="form-label">Prix (TND)</label>
-              <input type="number" class="form-control" id="editPrice" [(ngModel)]="selectedCourse.price" name="price">
-            </div>
-            <div class="mb-3">
-              <label for="editImage" class="form-label">Image de la Formation</label>
-              <input type="file" class="form-control" id="editImage" (change)="onFileSelected($event, 'selectedCourse')" accept="image/*">
-              <div *ngIf="selectedCourseImagePreview" class="mt-2">
-                <img [src]="selectedCourseImagePreview" alt="Image Preview" style="max-width: 100%; max-height: 200px;">
-              </div>
-              <div *ngIf="selectedCourse.image && !selectedCourseImagePreview" class="mt-2">
-                <img [src]="selectedCourse.image" alt="Current Image" style="max-width: 100%; max-height: 200px;">
-                <p>Image actuelle</p>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">Mettre à Jour</button>
-          </form>
-        </div>
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">Mettre à Jour</button>
+        </form>
       </div>
     </div>
   </div>
+</div>
   <!-- Sidebar -->
   <div class="sidebar">
     <a href="/" class="navbar-brand">
-      <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
+        <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
     </a>
     <div class="navbar-nav">
-      <a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
-      <a href="/admin/courses" class="nav-link active"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
-      <a href="/admin/trainers" class="nav-link"><i class="fas fa-user-tie"></i>Formateurs</a>
-      <a href="/admin/students" class="nav-link"><i class="fas fa-users"></i>Étudiants</a>
-      <a href="/admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
-      <a href="/admin/reviews" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
-      <a href="#" class="nav-link" (click)="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+        <a href="dash" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
+        <a href="admin/course" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
+        <a href="admin/users" class="nav-link"><i class="fas fa-users"></i>Utilisateurs</a>
+        <a href="admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
+        <a href="admin/review" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
+        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
     </div>
-  </div>
+</div>
   
   <style>
     /* Same styles as the previous dashboard for consistency */

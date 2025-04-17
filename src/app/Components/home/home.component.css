@@ -1,0 +1,41 @@
+/* src/app/home/home.component.css */
+.review-item {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .review-item:hover {
+    transform: translateY(-5px);
+  }
+  
+  .star-rating i {
+    font-size: 1.2rem;
+    margin-right: 5px;
+  }
+  
+  .owl-carousel .owl-item .review-item {
+    margin: 15px;
+  }
+  
+  .animate__animated.animate__fadeIn {
+    --animate-duration: 1s;
+  }
+  
+  .animate__animated.animate__fadeInUp {
+    --animate-duration: 1s;
+  }
+  
+  /* Ensure form inputs are styled consistently */
+  .form-control {
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .btn-primary {
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }

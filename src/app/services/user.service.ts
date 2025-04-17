@@ -7,39 +7,38 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5000/api/auth/users'; // Adjust to your backend URL
+  private apiUrl = 'http://localhost:5000/api/auth/users';
 
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     });
   }
 
-  // Get all users (formateurs and apprenants)
   getUsers(): Observable<any> {
     return this.http.get(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  // Get a single user by ID
   getUser(id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Create a new user
-  createUser(user: any): Observable<any> {
-    return this.http.post(this.apiUrl, user, { headers: this.getHeaders() });
+  // Nouvelle méthode pour récupérer les formateurs
+  getInstructors(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}?role=formateur`, { headers: this.getHeaders() });
   }
 
-  // Update a user
-  updateUser(id: string, user: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, user, { headers: this.getHeaders() });
+  createUser(formData: FormData): Observable<any> {
+    return this.http.post(this.apiUrl, formData, { headers: this.getHeaders() });
   }
 
-  // Delete a user
+  updateUser(id: string, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, formData, { headers: this.getHeaders() });
+  }
+
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }

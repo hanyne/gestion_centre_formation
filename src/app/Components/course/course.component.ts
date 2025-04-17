@@ -126,7 +126,11 @@ export class CoursesComponent implements OnInit {
     }
   }
 
-  onImageError(event: any): void {
-    event.target.src = 'assets/img/courses-1.jpg';
+  getCourseImageUrl(image: string | undefined): string {
+    console.log('Image path:', image);
+    if (image) {
+      return `http://localhost:5000/uploads/${image}`;
+    }
+    return 'assets/img/courses-1.jpg';
   }
 }

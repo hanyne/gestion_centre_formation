@@ -28,11 +28,12 @@ const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
 const enrollmentRoutes = require('./routes/Enrollement');
 const contactRoutes = require('./routes/contact');
-
+const reviewRoutes = require('./routes/reviews');
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments',enrollmentRoutes );
 app.use('/api',contactRoutes );
+app.use('/api/reviews', reviewRoutes);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

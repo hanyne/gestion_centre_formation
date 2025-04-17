@@ -1,4 +1,3 @@
-<!-- src/app/gestion-messages/gestion-messages.component.html -->
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -285,134 +284,98 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-      <a href="/" class="navbar-brand">
-          <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
-      </a>
-      <div class="navbar-nav">
-          <a href="dash" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
-          <a href="admin/course" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
-          <a href="admin/users" class="nav-link"><i class="fas fa-users"></i>Utilisateurs</a>
-          <a href="admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
-          <a href="admin/review" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
-          <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
-      </div>
-  </div>
+        <a href="/" class="navbar-brand">
+            <h1><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
+        </a>
+        <div class="navbar-nav">
+            <a href="dash" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Tableau de Bord</a>
+            <a href="admin/course" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Formations</a>
+            <a href="admin/users" class="nav-link"><i class="fas fa-users"></i>Utilisateurs</a>
+            <a href="admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
+            <a href="admin/review" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
+            <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+        </div>
+    </div>
 
-<div class="main-content">
+  <div class="main-content">
     <!-- Topbar -->
     <div class="topbar">
-      <h2 class="animate__animated animate__fadeIn">Gestion des Messages</h2>
-      <div class="user-info animate__animated animate__fadeIn">
+      <h2>Gestion des Avis Clients</h2>
+      <div class="user-info">
         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Admin">
         <span>Admin</span>
       </div>
     </div>
   
-    <!-- Messages List -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card animate__animated animate__fadeInUp">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Messages des Utilisateurs</span>
-            <div class="search-bar">
-              <input type="text" class="form-control" placeholder="Rechercher un message..." [(ngModel)]="searchQuery" (input)="filterMessages()">
-              <i class="fas fa-search search-icon"></i>
-            </div>
+    <!-- Reviews Table -->
+    <div class="card animate__animated animate__fadeIn">
+      <div class="card-header">Liste des Avis</div>
+      <div class="card-body">
+        <div *ngIf="errorMessage" class="alert alert-danger animate__animated animate__shakeX" role="alert">
+          {{ errorMessage }}
+        </div>
+        <table class="table table-hover modern-table">
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Note</th>
+              <th>Commentaire</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let review of reviews" class="animate__animated animate__fadeInUp">
+              <td>
+                <img [src]="review.user.photo ? 'http://localhost:5000/uploads/' + review.user.photo : 'assets/img/default-user.jpg'"
+                     class="rounded-circle mr-2"
+                     style="width: 30px; height: 30px; object-fit: cover;"
+                     alt="User Photo">
+                {{ review.user.firstName }} {{ review.user.lastName }}
+              </td>
+              <td>
+                <div class="star-rating">
+                  <i *ngFor="let star of [1, 2, 3, 4, 5]"
+                     class="fa fa-star"
+                     [ngClass]="{'text-warning': star <= review.rating, 'text-muted': star > review.rating}"></i>
+                </div>
+              </td>
+              <td>{{ review.comment | slice:0:50 }}{{ review.comment.length > 50 ? '...' : '' }}</td>
+              <td>{{ review.createdAt | date:'medium' }}</td>
+              <td>
+                <button class="btn btn-danger btn-sm modern-btn" (click)="openDeleteModal(review)">
+                  <i class="fas fa-trash"></i> Supprimer
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="reviews.length === 0">
+              <td colspan="5" class="text-center">Aucun avis disponible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" [ngClass]="{'show d-block': showDeleteModal}" tabindex="-1" role="dialog" *ngIf="showDeleteModal">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmer la Suppression</h5>
+            <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
           </div>
-          <div class="card-body messages-list">
-            <!-- Messages d'alerte -->
-            <div *ngIf="errorMessage" class="alert alert-danger text-center animate__animated animate__shakeX">
-              {{ errorMessage }}
-            </div>
-            <div *ngIf="successMessage" class="alert alert-success text-center animate__animated animate__bounceIn">
-              {{ successMessage }}
-            </div>
-            <div *ngIf="filteredMessages.length === 0 && !errorMessage" class="alert alert-info text-center animate__animated animate__fadeIn">
-              Aucun message pour le moment.
-            </div>
-  
-            <!-- Formulaire de modification -->
-            <div *ngIf="selectedMessage" class="edit-form-container animate__animated animate__zoomIn">
-              <h4>Modifier le message</h4>
-              <form [formGroup]="editForm" (ngSubmit)="updateMessage()">
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="name" class="form-label fw-bold">Nom <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                      <span class="input-group-text"><i class="fas fa-user"></i></span>
-                      <input type="text" class="form-control" id="name" formControlName="name"
-                             [class.is-invalid]="editForm.get('name')?.touched && editForm.get('name')?.invalid">
-                    </div>
-                    <div *ngIf="editForm.get('name')?.touched && editForm.get('name')?.invalid" class="text-danger small">
-                      Le nom est requis.
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                      <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                      <input type="email" class="form-control" id="email" formControlName="email"
-                             [class.is-invalid]="editForm.get('email')?.touched && editForm.get('email')?.invalid">
-                    </div>
-                    <div *ngIf="editForm.get('email')?.touched && editForm.get('email')?.invalid" class="text-danger small">
-                      Veuillez entrer un email valide.
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="subject" class="form-label fw-bold">Sujet <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                    <input type="text" class="form-control" id="subject" formControlName="subject"
-                           [class.is-invalid]="editForm.get('subject')?.touched && editForm.get('subject')?.invalid">
-                  </div>
-                  <div *ngIf="editForm.get('subject')?.touched && editForm.get('subject')?.invalid" class="text-danger small">
-                    Le sujet est requis.
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="message" class="form-label fw-bold">Message <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-comment"></i></span>
-                    <textarea class="form-control" id="message" formControlName="message" rows="3"
-                              [class.is-invalid]="editForm.get('message')?.touched && editForm.get('message')?.invalid"></textarea>
-                  </div>
-                  <div *ngIf="editForm.get('message')?.touched && editForm.get('message')?.invalid" class="text-danger small">
-                    Le message est requis.
-                  </div>
-                </div>
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary me-2" [disabled]="editForm.invalid">
-                    <i class="fas fa-save me-2"></i>Mettre à jour
-                  </button>
-                  <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
-                    <i class="fas fa-times me-2"></i>Annuler
-                  </button>
-                </div>
-              </form>
-            </div>
-  
-            <!-- Liste des messages -->
-            <div *ngFor="let message of filteredMessages; let i = index" class="message-item animate__animated animate__fadeInUp" [style.animation-delay]="i * 0.1 + 's'">
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="User">
-              <div class="message-content">
-                <h6>{{ message.name }}</h6>
-                <p><strong>Email:</strong> {{ message.email }}</p>
-                <p><strong>Sujet:</strong> {{ message.subject }}</p>
-                <p>{{ message.message }}</p>
-                <small class="text-muted">Envoyé le: {{ message.createdAt | date:'medium' }}</small>
-                <div class="mt-2">
-                  <button class="btn btn-primary btn-sm me-2" (click)="editMessage(message)">
-                    <i class="fas fa-edit me-1"></i>Modifier
-                  </button>
-                  <button class="btn btn-danger btn-sm" (click)="deleteMessage(message._id)">
-                    <i class="fas fa-trash-alt me-1"></i>Supprimer
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="modal-body">
+            <p>Voulez-vous vraiment supprimer cet avis :</p>
+            <p *ngIf="selectedReview" class="font-weight-bold">
+              "{{ selectedReview.comment | slice:0:50 }}{{ selectedReview.comment.length > 50 ? '...' : '' }}"
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+            <button type="button" class="btn btn-danger" (click)="confirmDelete()">Supprimer</button>
           </div>
         </div>
       </div>
     </div>
+    <div class="modal-backdrop fade show" *ngIf="showDeleteModal"></div>
   </div>
