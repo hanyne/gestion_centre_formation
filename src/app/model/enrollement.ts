@@ -1,12 +1,11 @@
-// src/app/model/enrollment.ts
-export class Enrollment {
-    _id?: string;
-    user?: string;
-    course?: string;
-    nom?: string;
-    prenom?: string;
-    email?: string;
-    telephone?: string;
-    enrollmentDate?: Date;
-    status?: 'pending' | 'confirmed' | 'completed';
-  }
+export interface Enrollment {
+  _id: string;
+  user: any;
+  course: any;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string;
+  enrollmentDate: string;
+  status: 'en attente' | 'confirme' | 'paye' | 'refuse';
+}

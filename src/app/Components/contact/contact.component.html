@@ -69,19 +69,19 @@
             background-color: #0056b3;
         }
 
-        /* Jumbotron (modernized) */
+        /* Jumbotron (adjusted to remove empty space) */
         .jumbotron {
             position: relative;
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
-            height: 50vh;
+            padding: 60px 0; /* Reduced height, adjustable as needed */
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             color: white;
-            margin-bottom: 90px;
+            margin-bottom: 0; /* Removed margin to eliminate gap */
         }
 
         .jumbotron h1 {
@@ -112,7 +112,7 @@
 
         /* Contact Section (modernized) */
         .contact-section {
-            padding: 80px 0;
+            padding: 40px 0; /* Reduced padding to minimize space */
         }
 
         .section-title {
@@ -332,39 +332,28 @@
 
 <body>
     <!-- Topbar Start (updated with Idéal Academy details) -->
-    <head>
-        <meta charset="utf-8">
-        <title>Idéal Academy - Centre de Formation Privée</title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="Formation professionnelle, Idéal Academy" name="keywords">
-        <meta content="Centre de formation privée agréé par l'État, proposant des formations en pâtisserie, couture, cosmétique, parfumerie, maintenance et langues." name="description">
-    </head>
-    
-    <body>
-        <!-- Topbar Start -->
-        <div class="container-fluid bg-dark">
-            <div class="row py-2 px-lg-5">
-                <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
-                    <div class="d-inline-flex align-items-center text-white">
-                        <small><i class="fa fa-phone-alt mr-2"></i>+216 58 837 712</small>
-                        <small class="px-3">|</small>
-                        <small><i class="fa fa-envelope mr-2"></i>contact@idealacademy.com</small>
-                    </div>
+    <div class="container-fluid bg-dark">
+        <div class="row py-2 px-lg-5">
+            <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
+                <div class="d-inline-flex align-items-center text-white">
+                    <small><i class="fa fa-phone-alt mr-2"></i>+216 58 837 712</small>
+                    <small class="px-3">|</small>
+                    <small><i class="fa fa-envelope mr-2"></i>contact@idealacademy.com</small>
                 </div>
-                <div class="col-lg-6 text-center text-lg-right">
-                    <div class="d-inline-flex align-items-center">
-                        <a class="text-white px-2" href="">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
+            </div>
+            <div class="col-lg-6 text-center text-lg-right">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-white px-2" href="https://instagram.com/ideal_academy_centre">
+                        <i class="fab fa-instagram"></i>
+                    </a>
                 </div>
             </div>
         </div>
-        <!-- Topbar End -->
-    
-        <!-- Navbar Start -->
-        <app-navbar></app-navbar>
-        </body>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <app-navbar></app-navbar>
     <!-- Navbar End -->
 
     <!-- Header Start (modernized) -->
@@ -390,7 +379,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-5 mb-5 mb-lg-0">
                     <div class="map-container">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3313.4988779392656!2d10.101413292512296!3d33.85103184317399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12556e3f864b634f%3A0xdc9df2154f7ac913!2sEcole%20Nationale%20d&#39;Ing%C3%A9nieurs%20de%20Gab%C3%A8s!5e0!3m2!1sfr!2stn!4v1742921492756!5m2!1sfr!2stn" 
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3313.4988779392656!2d10.101413292512296!3d33.85103184317399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12556e3f864b634f%3A0xdc9df2154f7ac913!2sEcole%20Nationale%20d'Ing%C3%A9nieurs%20de%20Gab%C3%A8s!5e0!3m2!1sfr!2stn!4v1742921492756!5m2!1sfr!2stn" 
                                 width="100%" 
                                 height="450" 
                                 style="border:0;" 
@@ -407,7 +396,7 @@
                                     <i class="fas fa-map-marker-alt"></i>
                                     <div>
                                         <h4>Notre Adresse</h4>
-                                        <p> En face l'ENIG de Gabès</p>
+                                        <p>En face l'ENIG de Gabès</p>
                                     </div>
                                 </div>
                                 <div class="info-item">

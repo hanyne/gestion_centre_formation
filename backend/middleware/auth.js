@@ -43,5 +43,6 @@ const authAdmin = (req, res, next) => {
   }
 };
 
+
 // Export both auth and authAdmin
 module.exports = { auth, authAdmin };

@@ -21,7 +21,14 @@ import { GestionmessagesComponent } from './components/gestionmessages/gestionme
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.component';
-
+import { FilterByRolePipe } from '../filter-by-role.pipe';
+import { GestioninscriptionComponent } from './Components/gestioninscription/gestioninscription.component';
+import { GestionPaiementComponent } from './components/gestionpaiement/gestionpaiement.component';
+import { CoursescheduleComponent } from './components/courseschedule/courseschedule.component';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { FormateurCoursesComponent } from './components/formateur-courses/formateur-courses.component';
+import { ApprenantCoursesComponent } from './components/apprenant-courses/apprenant-courses.component';
+import { DiscountedEnrollmentComponent } from './components/discounted-enrollment/discounted-enrollment.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,7 +45,15 @@ import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.
     EnrollementComponent,
     GestionmessagesComponent,
     NavbarComponent,
-    AdminReviewsComponent
+    AdminReviewsComponent,
+    FilterByRolePipe,
+    GestioninscriptionComponent,
+    GestionPaiementComponent,
+    CoursescheduleComponent,
+    FormateurCoursesComponent,
+    ApprenantCoursesComponent,
+    DiscountedEnrollmentComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -46,7 +61,9 @@ import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    BsDatepickerModule.forRoot(),
+     
 
   ],
   providers: [AdminGuard , ReviewService],

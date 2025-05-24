@@ -1,9 +1,9 @@
-// src/app/gestionformation/gestionformation.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CourseService } from '../../services/course.service';
-import { UserService } from '../../services/user.service'; // Importer UserService
+import { UserService } from '../../services/user.service';
 import { Course } from '../../model/course';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-gestionformation',
@@ -12,12 +12,12 @@ import { AuthService } from '../../services/auth.service';
 })
 export class GestionformationComponent implements OnInit {
   courses: Course[] = [];
-  instructors: any[] = []; // Liste des formateurs
+  instructors: any[] = [];
   newCourse: Course = {
     _id: '',
     title: '',
     description: '',
-    instructor: { _id: '', email: '' }, // Initialisation comme objet
+    instructor: { _id: '', email: '' },
     image: '',
     rating: 0,
     duration: '',
@@ -34,20 +34,22 @@ export class GestionformationComponent implements OnInit {
 
   constructor(
     private courseService: CourseService,
-    private userService: UserService, // Injecter UserService
-    private authService: AuthService
+    private userService: UserService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadCourses();
-    this.loadInstructors(); // Charger les formateurs
+    this.loadInstructors();
   }
 
-  // Charger les formateurs
   loadInstructors(): void {
     this.userService.getInstructors().subscribe({
-      next: (instructors) => {
-        this.instructors = instructors;
+      next: (users) => {
+        // Filter users to only include those with role 'formateur'
+        this.instructors = users.filter((user: any) => user.role === 'formateur');
+        console.log('Filtered instructors:', this.instructors);
       },
       error: (err) => {
         this.errorMessage = 'Erreur lors du chargement des formateurs : ' + err.message;
@@ -56,11 +58,9 @@ export class GestionformationComponent implements OnInit {
     });
   }
 
-  // Load all courses
   loadCourses(): void {
     this.courseService.getCourses().subscribe({
       next: (courses) => {
-        console.log('Courses loaded:', courses);
         this.courses = courses;
       },
       error: (err) => {
@@ -70,7 +70,6 @@ export class GestionformationComponent implements OnInit {
     });
   }
 
-  // Handle file selection and preview
   onFileSelected(event: Event, target: 'newCourse' | 'selectedCourse'): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -85,32 +84,30 @@ export class GestionformationComponent implements OnInit {
     }
   }
 
-  // Open create modal
   openCreateModal(): void {
-    if (!this.authService.isAdmin()) {
-      this.errorMessage = 'Vous devez être administrateur pour ajouter une formation.';
-      return;
-    }
+    this.newCourse = {
+      _id: '',
+      title: '',
+      description: '',
+      instructor: { _id: '', email: '' },
+      image: '',
+      rating: 0,
+      duration: '',
+      price: 0,
+      createdAt: new Date()
+    };
     this.newCourseImageFile = null;
     this.newCourseImagePreview = null;
-    const modal = document.getElementById('createCourseModal');
-    if (modal) {
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden', 'false');
-      modal.style.display = 'block';
-      document.body.classList.add('modal-open');
-      const backdrop = document.createElement('div');
-      backdrop.className = 'modal-backdrop fade show';
-      document.body.appendChild(backdrop);
+    const modalElement = document.getElementById('createCourseModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+    } else {
+      console.error('Create modal element not found');
     }
   }
 
   createCourse(): void {
-    if (!this.authService.isAdmin()) {
-      this.errorMessage = 'Vous devez être administrateur pour ajouter une formation.';
-      return;
-    }
-
     if (!this.newCourse.title || !this.newCourse.description || !this.newCourse.instructor._id) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
       return;
@@ -119,7 +116,7 @@ export class GestionformationComponent implements OnInit {
     const formData = new FormData();
     formData.append('title', this.newCourse.title);
     formData.append('description', this.newCourse.description);
-    formData.append('instructor', this.newCourse.instructor._id); // Envoyer l'ID du formateur
+    formData.append('instructor', this.newCourse.instructor._id);
     formData.append('duration', this.newCourse.duration || '');
     formData.append('price', this.newCourse.price?.toString() || '0');
     formData.append('rating', (this.newCourse.rating ?? 0).toString());
@@ -154,10 +151,6 @@ export class GestionformationComponent implements OnInit {
   }
 
   openEditModal(course: Course): void {
-    if (!this.authService.isAdmin()) {
-      this.errorMessage = 'Vous devez être administrateur pour modifier une formation.';
-      return;
-    }
     if (!course._id) {
       this.errorMessage = 'ID de la formation manquant.';
       return;
@@ -165,23 +158,16 @@ export class GestionformationComponent implements OnInit {
     this.selectedCourse = { ...course };
     this.selectedCourseImageFile = null;
     this.selectedCourseImagePreview = null;
-    const modal = document.getElementById('editCourseModal');
-    if (modal) {
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden', 'false');
-      modal.style.display = 'block';
-      document.body.classList.add('modal-open');
-      const backdrop = document.createElement('div');
-      backdrop.className = 'modal-backdrop fade show';
-      document.body.appendChild(backdrop);
+    const modalElement = document.getElementById('editCourseModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+    } else {
+      console.error('Edit modal element not found');
     }
   }
 
   updateCourse(): void {
-    if (!this.authService.isAdmin()) {
-      this.errorMessage = 'Vous devez être administrateur pour modifier une formation.';
-      return;
-    }
     if (!this.selectedCourse._id) {
       this.errorMessage = 'ID de la formation manquant pour la mise à jour.';
       return;
@@ -191,7 +177,7 @@ export class GestionformationComponent implements OnInit {
     formData.append('_id', this.selectedCourse._id);
     formData.append('title', this.selectedCourse.title);
     formData.append('description', this.selectedCourse.description);
-    formData.append('instructor', this.selectedCourse.instructor._id); // Envoyer l'ID du formateur
+    formData.append('instructor', this.selectedCourse.instructor._id);
     formData.append('duration', this.selectedCourse.duration || '');
     formData.append('price', this.selectedCourse.price?.toString() || '0');
     formData.append('rating', (this.selectedCourse.rating ?? 0).toString());
@@ -220,15 +206,11 @@ export class GestionformationComponent implements OnInit {
   }
 
   deleteCourse(id: string): void {
-    if (!this.authService.isAdmin()) {
-      this.errorMessage = 'Vous devez être administrateur pour supprimer une formation.';
-      return;
-    }
     if (!id) {
       this.errorMessage = 'ID de la formation manquant pour la suppression.';
       return;
     }
-  
+
     if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
       this.courseService.deleteCourse(id).subscribe({
         next: () => {
@@ -244,16 +226,12 @@ export class GestionformationComponent implements OnInit {
   }
 
   closeModal(modalId: string): void {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden', 'true');
-      modal.style.display = 'none';
-      document.body.classList.remove('modal-open');
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const modal = (window as any).bootstrap.Modal.getInstance(modalElement) || new (window as any).bootstrap.Modal(modalElement);
+      modal.hide();
+    } else {
+      console.error(`Modal element with ID ${modalId} not found`);
     }
   }
 
@@ -280,7 +258,19 @@ export class GestionformationComponent implements OnInit {
     this.authService.logout();
   }
 
-  isAdmin(): boolean {
-    return this.authService.isAdmin();
+  manageEnrollments(courseId: string): void {
+    if (courseId) {
+      this.router.navigate([`/gestioninscription/${courseId}`]);
+    } else {
+      this.errorMessage = 'ID de la formation manquant.';
+    }
+  }
+
+  viewSchedule(courseId: string): void {
+    if (courseId) {
+      this.router.navigate([`/course-schedule/${courseId}`]);
+    } else {
+      this.errorMessage = 'ID de la formation manquant.';
+    }
   }
 }

@@ -1,5 +1,7 @@
+// navbar.component.ts
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service'; // Adjust the path based on your project structure
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -7,7 +9,11 @@ import { AuthService } from '../../services/auth.service'; // Adjust the path ba
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, public router: Router) {}
+
+  isApprenant(): boolean {
+    return this.authService.isLoggedIn() && this.authService.isApprenant();
+  }
 
   logout(): void {
     this.authService.logout();

@@ -14,6 +14,14 @@ import { CoursedetailsComponent } from './components/coursedetails/coursedetails
 import { EnrollementComponent } from './components/enrollement/enrollement.component';
 import { GestionmessagesComponent } from './components/gestionmessages/gestionmessages.component';
 import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.component';
+import { GestioninscriptionComponent } from './Components/gestioninscription/gestioninscription.component';
+import { GestionPaiementComponent } from './components/gestionpaiement/gestionpaiement.component';
+import { CoursescheduleComponent } from './components/courseschedule/courseschedule.component';
+import { FormateurCoursesComponent } from './components/formateur-courses/formateur-courses.component';
+import { ApprenantCoursesComponent } from './components/apprenant-courses/apprenant-courses.component';
+import { InstructorGuard } from './guards/instructor-guard.service';
+import { ApprenantGuard } from './guards/apprenant.guard';
+import { DiscountedEnrollmentComponent } from './components/discounted-enrollment/discounted-enrollment.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -29,7 +37,13 @@ const routes: Routes = [
   { path: 'admin/course', component: GestionformationComponent },
   { path: 'admin/messages', component: GestionmessagesComponent },
   { path: 'enrollment/:id', component: EnrollementComponent },
+  { path: 'gestioninscription/:id', component: GestioninscriptionComponent },
+  { path: 'course-schedule/:id', component: CoursescheduleComponent },
+  { path: 'gestionpaiement/:id', component: GestionPaiementComponent }, 
   { path: 'admin/review', component: AdminReviewsComponent },
+  { path: 'instructor-schedule', component: FormateurCoursesComponent,canActivate: [InstructorGuard]},
+  { path: 'apprenant-courses', component: ApprenantCoursesComponent, canActivate: [ApprenantGuard] }, 
+  
   { path: '', redirectTo: '/courses', pathMatch: 'full' }
     
 ];

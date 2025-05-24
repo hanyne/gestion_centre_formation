@@ -11,6 +11,7 @@
                 <a routerLink="/" class="nav-item nav-link active">Accueil</a>
                 <a routerLink="/about" class="nav-item nav-link">À Propos</a>
                 <a routerLink="/course" class="nav-item nav-link">Formations</a>
+                <a *ngIf="isApprenant()" routerLink="/apprenant-courses" class="nav-item nav-link">Mon Emploi du Temps</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
                     <div class="dropdown-menu m-0">

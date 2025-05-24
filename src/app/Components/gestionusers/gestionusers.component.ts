@@ -1,4 +1,3 @@
-// src/app/gestionusers/gestionusers.component.ts
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 
@@ -22,8 +21,9 @@ export class GestionusersComponent implements OnInit {
   selectedUser: any = null;
   showEditModal: boolean = false;
   error: string = '';
-  newUserPhotoPreview: string | null = null; // Prévisualisation de la photo pour un nouvel utilisateur
-  selectedUserPhotoPreview: string | null = null; // Prévisualisation de la photo pour un utilisateur modifié
+  newUserPhotoPreview: string | null = null;
+  selectedUserPhotoPreview: string | null = null;
+  viewMode: 'add' | 'list' = 'add';
 
   constructor(private userService: UserService) {}
 
@@ -34,10 +34,12 @@ export class GestionusersComponent implements OnInit {
   loadUsers(): void {
     this.userService.getUsers().subscribe({
       next: (users) => {
+        console.log('Users loaded:', users);
         this.users = users;
       },
       error: (err) => {
-        this.error = err.error.message || 'Erreur lors du chargement des utilisateurs';
+        console.error('Error loading users:', err);
+        this.error = err.error?.message || 'Erreur lors du chargement des utilisateurs';
       },
     });
   }
@@ -48,10 +50,10 @@ export class GestionusersComponent implements OnInit {
       const file = input.files[0];
       if (target === 'newUser') {
         this.newUser.photo = file;
-        this.newUserPhotoPreview = URL.createObjectURL(file); // Créer une URL de prévisualisation
+        this.newUserPhotoPreview = URL.createObjectURL(file);
       } else {
         this.selectedUser.photo = file;
-        this.selectedUserPhotoPreview = URL.createObjectURL(file); // Créer une URL de prévisualisation
+        this.selectedUserPhotoPreview = URL.createObjectURL(file);
       }
     }
   }
@@ -70,11 +72,12 @@ export class GestionusersComponent implements OnInit {
     this.userService.createUser(formData).subscribe({
       next: () => {
         this.loadUsers();
-        this.newUser = { email: '', password: '', role: 'apprenant', firstName: '', lastName: '', dateOfBirth: '', bio: '', photo: null };
+        this.resetNewUser();
         this.newUserPhotoPreview = null;
       },
       error: (err) => {
-        this.error = err.error.message || 'Erreur lors de la création de l\'utilisateur';
+        console.error('Error creating user:', err);
+        this.error = err.error?.message || 'Erreur lors de la création de l\'utilisateur';
       },
     });
   }
@@ -92,6 +95,8 @@ export class GestionusersComponent implements OnInit {
   }
 
   onUpdate(): void {
+    if (!this.selectedUser) return;
+
     const formData = new FormData();
     formData.append('email', this.selectedUser.email);
     formData.append('role', this.selectedUser.role);
@@ -108,19 +113,40 @@ export class GestionusersComponent implements OnInit {
         this.closeEditModal();
       },
       error: (err) => {
-        this.error = err.error.message || 'Erreur lors de la mise à jour de l\'utilisateur';
+        console.error('Error updating user:', err);
+        this.error = err.error?.message || 'Erreur lors de la mise à jour de l\'utilisateur';
       },
     });
   }
 
   deleteUser(id: string): void {
+    if (!id) {
+      console.error('User ID is undefined');
+      this.error = 'Erreur : ID de l\'utilisateur non défini';
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      this.error = 'Erreur : Vous devez être connecté pour effectuer cette action';
+      return;
+    }
+
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       this.userService.deleteUser(id).subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('User deleted successfully:', response);
           this.loadUsers();
+          this.error = '';
         },
         error: (err) => {
-          this.error = err.error.message || 'Erreur lors de la suppression de l\'utilisateur';
+          console.error('Error deleting user:', err);
+          const errorMessage = err.error?.message || 'Erreur lors de la suppression de l\'utilisateur';
+          this.error = errorMessage;
+          if (err.status === 401) {
+            this.error = 'Erreur : Session expirée ou accès non autorisé. Veuillez vous reconnecter.';
+          }
         },
       });
     }
@@ -130,6 +156,27 @@ export class GestionusersComponent implements OnInit {
     if (photo) {
       return `http://localhost:5000/uploads/${photo}`;
     }
-    return 'assets/img/default-user.jpg'; // Image par défaut si aucune photo n'est disponible
+    return 'assets/img/default-user.jpg';
+  }
+
+  resetNewUser(): void {
+    this.newUser = { 
+      email: '', 
+      password: '', 
+      role: 'apprenant', 
+      firstName: '', 
+      lastName: '', 
+      dateOfBirth: '', 
+      bio: '', 
+      photo: null 
+    };
+  }
+
+  setViewMode(mode: 'add' | 'list'): void {
+    this.viewMode = mode;
+    if (mode === 'add') {
+      this.resetNewUser();
+      this.newUserPhotoPreview = null;
+    }
   }
 }

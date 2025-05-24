@@ -293,7 +293,7 @@
             <a href="admin/users" class="nav-link"><i class="fas fa-users"></i>Utilisateurs</a>
             <a href="admin/messages" class="nav-link"><i class="fas fa-envelope"></i>Messages</a>
             <a href="admin/review" class="nav-link"><i class="fas fa-star"></i>Avis Clients</a>
-            <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+            <a href="#" class="nav-link"(click)="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
         </div>
     </div>
 
@@ -308,247 +308,46 @@
             </div>
         </div>
 
+        <!-- Error Message -->
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+
         <!-- Overview Cards -->
         <div class="row mb-4">
             <div class="col-md-3">
                 <div class="overview-card">
                     <i class="fas fa-chalkboard-teacher"></i>
-                    <h3>12</h3>
+                    <h3>{{ totalCourses }}</h3>
                     <p>Formations Actives</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="overview-card">
                     <i class="fas fa-user-tie"></i>
-                    <h3>8</h3>
+                    <h3>{{ totalInstructors }}</h3>
                     <p>Formateurs</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="overview-card">
                     <i class="fas fa-users"></i>
-                    <h3>150</h3>
+                    <h3>{{ totalStudents }}</h3>
                     <p>Étudiants Inscrits</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="overview-card">
                     <i class="fas fa-envelope"></i>
-                    <h3>5</h3>
+                    <h3>{{ totalNewMessages }}</h3>
                     <p>Nouveaux Messages</p>
                 </div>
             </div>
         </div>
 
-        <!-- Training Programs Overview -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Formations Récentes</div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Formation</th>
-                                    <th>Date</th>
-                                    <th>Progression</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Pâtisserie Avancée</td>
-                                    <td>01/04/2025</td>
-                                    <td>75%</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                        <button class="btn btn-secondary btn-sm">Modifier</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Couture Débutant</td>
-                                    <td>05/04/2025</td>
-                                    <td>50%</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                        <button class="btn btn-secondary btn-sm">Modifier</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Progression des Formations</div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="trainingProgressChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Trainers and Students -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Formateurs</div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Formation</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Marie Dupont</td>
-                                    <td>Pâtisserie</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Ahmed Trabelsi</td>
-                                    <td>Langues</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Étudiants Récents</div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Formation</th>
-                                    <th>Progression</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Sarah Ben Ali</td>
-                                    <td>Couture</td>
-                                    <td>60%</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Karim Mhiri</td>
-                                    <td>Maintenance GSM</td>
-                                    <td>80%</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Voir</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Messages and Customer Inquiries -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Messages Récents</div>
-                    <div class="card-body messages-list">
-                        <div class="message-item">
-                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="User">
-                            <div class="message-content">
-                                <h6>Amel Ben Salah</h6>
-                                <p>Bonjour, j’ai une question sur le cours de couture...</p>
-                            </div>
-                        </div>
-                        <div class="message-item">
-                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="User">
-                            <div class="message-content">
-                                <h6>Ahmed Trabelsi</h6>
-                                <p>Je serai absent demain, merci de reprogrammer...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Avis Clients</div>
-                    <div class="card-body">
-                        <div class="inquiry-item">
-                            <h6>Leila K.</h6>
-                            <p>Excellente formation en pâtisserie, très professionnelle !</p>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="inquiry-item">
-                            <h6>Mohamed B.</h6>
-                            <p>Le cours de maintenance GSM était très pratique.</p>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- JavaScript for Chart -->
-    <script>
-        // Training Progress Chart
-        const ctx = document.getElementById('trainingProgressChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Pâtisserie', 'Couture', 'Langues', 'Maintenance GSM', 'Parfumerie'],
-                datasets: [{
-                    label: 'Progression (%)',
-                    data: [75, 50, 80, 60, 45],
-                    backgroundColor: '#007bff',
-                    borderColor: '#0056b3',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    </script>
-
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

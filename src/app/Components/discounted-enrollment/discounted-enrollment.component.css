@@ -1,0 +1,111 @@
+/* src/app/discounted-enrollment/discounted-enrollment.component.css */
+.enrollment-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.gradient-header {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.course-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.modern-input {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.modern-input input,
+.modern-input select {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 10px 0;
+  width: 100%;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.modern-input input:focus,
+.modern-input select:focus {
+  outline: none;
+  border-bottom: 2px solid #667eea;
+}
+
+.modern-input label {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  font-size: 1rem;
+  color: #666;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.modern-input input:focus + label,
+.modern-input input:not(:placeholder-shown) + label,
+.modern-input select:focus + label,
+.modern-input select:not(:placeholder-shown) + label {
+  top: -20px;
+  font-size: 0.8rem;
+  color: #667eea;
+}
+
+.underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #667eea;
+  transition: all 0.3s ease;
+}
+
+.modern-input input:focus ~ .underline,
+.modern-input select:focus ~ .underline {
+  width: 100%;
+}
+
+.neon-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.neon-btn:hover {
+  background: #764ba2;
+  box-shadow: 0 0 20px rgba(118, 75, 162, 0.7);
+}
+
+.neon-btn.secondary {
+  background: #6c757d;
+  box-shadow: 0 0 10px rgba(108, 117, 125, 0.5);
+}
+
+.neon-btn.secondary:hover {
+  background: #5a6268;
+  box-shadow: 0 0 20px rgba(90, 98, 104, 0.7);
+}
+
+.alert {
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}

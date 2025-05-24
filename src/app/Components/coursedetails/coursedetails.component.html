@@ -39,7 +39,7 @@
         <div class="nav-item dropdown">
           <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
           <div class="dropdown-menu m-0 border-0 shadow-sm">
-            <a routerLink="/detail" class="dropdown-item">Course Detail</a>
+            <a routerLink="/coursedetails" class="dropdown-item">Course Detail</a>
             <a routerLink="/feature" class="dropdown-item">Our Features</a>
             <a routerLink="/team" class="dropdown-item">Instructors</a>
             <a routerLink="/testimonial" class="dropdown-item">Testimonial</a>
@@ -72,8 +72,19 @@
 <!-- Course Detail Start -->
 <div class="container-fluid py-5 bg-light">
   <div class="container py-5">
+    <!-- Error Message -->
     <div *ngIf="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
-    <div *ngIf="course">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p>Chargement des détails de la formation...</p>
+    </div>
+
+    <!-- Course Content -->
+    <div *ngIf="course && !isLoading">
       <!-- Course Overview -->
       <div class="row mb-5 align-items-center">
         <div class="col-lg-6 mb-4 mb-lg-0">
@@ -91,15 +102,16 @@
                   {{ course.instructor.firstName }} {{ course.instructor.lastName }}
                 </ng-container>
                 <ng-template #noInstructor>
-                  <span class="text-danger">Formateur non trouvé</span>
+                  <span class="text-danger">Formateur non spécifié</span>
                 </ng-template>
               </p>
-              <p><i class="fas fa-clock me-2 text-primary"></i> Durée: {{ course.duration || 'N/A' }} H </p>
+              <p><i class="fas fa-clock me-2 text-primary"></i> Durée: {{ course.duration || 'Non spécifiée' }}</p>
               <p><i class="fas fa-money-bill-wave me-2 text-primary"></i> Prix: {{ course.price ? course.price + ' TND' : 'Gratuit' }}</p>
-              <p><i class="fas fa-star me-2 text-primary"></i> Évaluation: {{ course.rating || 'N/A' }} <small>(250 avis)</small></p>
+              <p><i class="fas fa-star me-2 text-primary"></i> Évaluation: {{ course.rating || 'Aucune' }} <small>(250 avis)</small></p>
               <p><i class="fas fa-calendar me-2 text-primary"></i> Créé le: {{ course.createdAt | date:'mediumDate' }}</p>
             </div>
-            <button class="btn btn-primary btn-enroll" (click)="enrollInCourse()">Inscription</button>
+            <button class="btn btn-primary btn-enroll" (click)="enrollInCourse()">S'inscrire</button>
+            <p class="text-muted mt-2"><small>* Inscription nécessite CIN, adresse, et niveau d'étude.</small></p>
           </div>
         </div>
       </div>
@@ -108,6 +120,22 @@
       <div class="course-section mb-5">
         <h3 class="section-heading">Description de la Formation</h3>
         <p class="course-description">{{ course.description || 'Aucune description disponible.' }}</p>
+      </div>
+
+      <!-- Course Schedule -->
+      <div class="course-section mb-5" *ngIf="course.schedule && course.schedule.length > 0">
+        <h3 class="section-heading">Planning</h3>
+        <ul class="course-schedule">
+          <li *ngFor="let session of course.schedule">
+            <i class="fas fa-calendar-day me-2 text-primary"></i>
+            {{ session.day }}: {{ session.startTime }} - {{ session.endTime }}
+            <span *ngIf="session.date"> ({{ session.date }})</span>
+          </li>
+        </ul>
+      </div>
+      <div class="course-section mb-5" *ngIf="!course.schedule || course.schedule.length === 0">
+        <h3 class="section-heading">Planning</h3>
+        <p>Aucun planning disponible.</p>
       </div>
 
       <!-- Course Highlights -->
@@ -127,15 +155,15 @@
         <div class="instructor-bio">
           <h5>
             <ng-container *ngIf="course.instructor; else noInstructorBio">
-              {{ course.instructor.firstName }} {{ course.instructor.lastName }} 
+              {{ course.instructor.firstName }} {{ course.instructor.lastName }}
             </ng-container>
             <ng-template #noInstructorBio>
-              <span class="text-danger">Formateur non trouvé</span>
+              <span class="text-danger">Formateur non spécifié</span>
             </ng-template>
           </h5>
           <p>
-            <ng-container *ngIf="course.instructor; else noInstructorBioDesc">
-              Expert en {{ course.title }} avec plus de 10 ans d'expérience dans l'industrie. Passionné par l'enseignement et le partage de connaissances pratiques.
+            <ng-container *ngIf="course.instructor && course.instructor.bio; else noInstructorBioDesc">
+              {{ course.instructor.bio }}
             </ng-container>
             <ng-template #noInstructorBioDesc>
               Aucune information disponible sur le formateur.
@@ -149,9 +177,6 @@
         <h3 class="mb-4">Prêt à Commencer Votre Apprentissage ?</h3>
         <button class="btn btn-primary btn-enroll btn-lg" (click)="enrollInCourse()">S'inscrire Maintenant</button>
       </div>
-    </div>
-    <div *ngIf="!course && !errorMessage" class="text-center">
-      <p>Chargement des détails de la formation...</p>
     </div>
   </div>
 </div>

@@ -21,6 +21,7 @@ export class LoginComponent {
         switch(response.role) {
           case 'admin': this.router.navigate(['/dash']); break;
           case 'apprenant': this.router.navigate(['/home']); break;
+          case 'formateur': this.router.navigate(['/instructor-schedule']); break;
           default: this.router.navigate(['/home']); break;
         }
       },

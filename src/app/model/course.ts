@@ -1,4 +1,3 @@
-// src/app/model/course.ts
 export interface Course {
   _id: string;
   title: string;
@@ -15,4 +14,10 @@ export interface Course {
   duration: string;
   price: number;
   createdAt: Date;
+  schedule?: {
+    day: string;
+    startTime: string;
+    endTime: string;
+    date?: string; // New field for specific date (e.g., "2025-05-05")
+  }[];
 }

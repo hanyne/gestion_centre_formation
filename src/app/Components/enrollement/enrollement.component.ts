@@ -1,15 +1,17 @@
+// enrollement.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { CourseService } from '../../services/course.service';
 import { EnrollmentService } from '../../services/enrollement.service';
 import { Course } from '../../model/course';
+
 @Component({
   selector: 'app-enrollement',
   templateUrl: './enrollement.component.html',
   styleUrls: ['./enrollement.component.css']
 })
-export class EnrollementComponent implements OnInit{
+export class EnrollementComponent implements OnInit {
   enrollmentForm: FormGroup;
   courseId: string | null = null;
   course: Course | null = null;
@@ -28,7 +30,10 @@ export class EnrollementComponent implements OnInit{
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      telephone: ['', [Validators.pattern('^[0-9]{8}$')]]
+      telephone: ['', [Validators.pattern('^[0-9]{8}$')]],
+      cin: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
+      adresse: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
+      niveauEtude: ['', [Validators.required]]
     });
   }
 
@@ -52,9 +57,9 @@ export class EnrollementComponent implements OnInit{
     this.errorMessage = '';
     this.successMessage = '';
 
-    const { nom, prenom, email, telephone } = this.enrollmentForm.value;
+    const { nom, prenom, email, telephone, cin, adresse, niveauEtude } = this.enrollmentForm.value;
 
-    this.enrollmentService.enroll(this.courseId, nom, prenom, email, telephone).subscribe({
+    this.enrollmentService.enroll(this.courseId, nom, prenom, email, telephone, cin, adresse, niveauEtude).subscribe({
       next: () => {
         this.successMessage = 'Inscription réussie !';
         this.isSubmitting = false;
@@ -81,6 +86,9 @@ export class EnrollementComponent implements OnInit{
       prenom: FormControl;
       email: FormControl;
       telephone: FormControl;
+      cin: FormControl;
+      adresse: FormControl;
+      niveauEtude: FormControl;
     };
   }
 }

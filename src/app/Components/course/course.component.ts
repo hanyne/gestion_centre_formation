@@ -1,4 +1,3 @@
-// src/app/courses/courses.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
@@ -45,14 +44,21 @@ export class CoursesComponent implements OnInit {
     let filtered = this.courses;
     if (this.searchTerm) {
       filtered = this.courses.filter(course =>
-        course.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        course.instructor.toLowerCase().includes(this.searchTerm.toLowerCase())
+        (course.title?.toLowerCase().includes(this.searchTerm.toLowerCase()) || false) ||
+        (course.instructor?.firstName?.toLowerCase().includes(this.searchTerm.toLowerCase()) || false) ||
+        (course.instructor?.lastName?.toLowerCase().includes(this.searchTerm.toLowerCase()) || false) ||
+        (course.description?.toLowerCase().includes(this.searchTerm.toLowerCase()) || false)
       );
     }
     this.totalPages = Math.ceil(filtered.length / this.pageSize);
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
     const start = (this.currentPage - 1) * this.pageSize;
     this.filteredCourses = filtered.slice(start, start + this.pageSize);
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1; // Réinitialiser à la première page lors d'une recherche
+    this.filterCourses();
   }
 
   goToPage(page: number): void {
@@ -87,6 +93,10 @@ export class CoursesComponent implements OnInit {
   }
 
   createCourse(): void {
+    if (!this.newCourse.title || !this.newCourse.description || !this.newCourse.instructor) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
     const formData = new FormData();
     formData.append('title', this.newCourse.title);
     formData.append('description', this.newCourse.description);
@@ -101,15 +111,16 @@ export class CoursesComponent implements OnInit {
         this.newCourse = { title: '', description: '', instructor: '', duration: '', price: null };
         this.newCourseImage = null;
         this.newCourseImagePreview = null;
+        alert('Formation créée avec succès !');
       },
       error: (err) => {
         console.error('Erreur lors de la création de la formation:', err);
+        alert('Erreur lors de la création de la formation.');
       },
     });
   }
 
   editCourse(course: any): void {
-    // Implement edit functionality (e.g., open a modal or navigate to an edit page)
     console.log('Edit course:', course);
   }
 
@@ -127,10 +138,9 @@ export class CoursesComponent implements OnInit {
   }
 
   getCourseImageUrl(image: string | undefined): string {
-    console.log('Image path:', image);
-    if (image) {
+    if (image && image !== 'undefined' && image !== '') {
       return `http://localhost:5000/uploads/${image}`;
     }
-    return 'assets/img/courses-1.jpg';
+    return 'assets/img/default-course.jpg'; // Image par défaut valide
   }
 }

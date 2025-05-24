@@ -1,4 +1,3 @@
-// routes/auth.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -11,11 +10,11 @@ const { authAdmin } = require('../middleware/auth');
 // Configuration de multer pour le téléversement des photos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Dossier où les photos seront stockées
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'user-' + uniqueSuffix + path.extname(file.originalname)); // Nom unique pour chaque fichier
+    cb(null, 'user-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -114,6 +113,7 @@ router.get('/users', authAdmin, async (req, res) => {
     const users = await User.find({ role: { $in: ['formateur', 'apprenant'] } }).select('-password');
     res.json(users);
   } catch (err) {
+    console.error('Error fetching users:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -130,6 +130,7 @@ router.get('/users/:id', authAdmin, async (req, res) => {
     }
     res.json(user);
   } catch (err) {
+    console.error('Error fetching user by ID:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -149,7 +150,6 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
       return res.status(400).json({ message: 'Utilisateur déjà existant' });
     }
 
-    // Vérification de la présence d'une photo (optionnel dans ce cas)
     if (!photo) {
       return res.status(400).json({ message: 'Une photo est requise pour créer un utilisateur.' });
     }
@@ -161,7 +161,7 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
       firstName,
       lastName,
       dateOfBirth,
-      photo, // Enregistrer le nom du fichier de la photo
+      photo,
       bio
     });
 
@@ -184,6 +184,7 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
       } 
     });
   } catch (err) {
+    console.error('Error creating user:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -212,7 +213,7 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
     if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
-    if (photo) user.photo = photo; // Mise à jour de la photo si une nouvelle est téléversée
+    if (photo) user.photo = photo;
     if (bio !== undefined) user.bio = bio;
 
     await user.save();
@@ -231,6 +232,7 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
       } 
     });
   } catch (err) {
+    console.error('Error updating user:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -247,9 +249,11 @@ router.delete('/users/:id', authAdmin, async (req, res) => {
       return res.status(403).json({ message: 'Utilisateur n\'est ni formateur ni apprenant' });
     }
 
-    await user.remove();
+    await user.deleteOne(); // Use deleteOne() instead of deprecated remove()
+    console.log(`User with ID ${req.params.id} deleted successfully`);
     res.json({ message: 'Utilisateur supprimé avec succès' });
   } catch (err) {
+    console.error('Error deleting user:', err);
     res.status(500).json({ message: err.message });
   }
 });
