@@ -5,12 +5,12 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const User = require('../model/User');
-const { authAdmin } = require('../middleware/auth');
+const { auth, authAdmin } = require('../middleware/auth');
 
-// Configuration de multer pour le téléversement des photos
+// Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'Uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -21,10 +21,12 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
+    if (!file) {
+      return cb(null, false); // No file provided, proceed without error
+    }
     const fileTypes = /jpeg|jpg|png/;
     const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = fileTypes.test(file.mimetype);
-
     if (extname && mimetype) {
       return cb(null, true);
     } else {
@@ -40,7 +42,7 @@ router.post('/register', async (req, res) => {
 
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: 'Utilisateur déjà existant' });
+      return res.status(400).json({ error: 'Utilisateur déjà existant' });
     }
 
     user = new User({
@@ -54,7 +56,6 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    console.log('JWT_SECRET in register:', process.env.JWT_SECRET);
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET is not defined');
     }
@@ -65,10 +66,10 @@ router.post('/register', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(201).json({ token, role: user.role });
+    res.status(201).json({ token, role: user.role, user: { id: user._id, email: user.email, role: user.role } });
   } catch (err) {
     console.error('Erreur lors de l\'inscription:', err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
@@ -79,15 +80,14 @@ router.post('/login', async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Utilisateur non trouvé' });
+      return res.status(400).json({ error: 'Utilisateur non trouvé' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Mot de passe incorrect' });
+      return res.status(400).json({ error: 'Mot de passe incorrect' });
     }
 
-    console.log('JWT_SECRET in login:', process.env.JWT_SECRET);
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET is not defined');
     }
@@ -98,60 +98,139 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.json({ token, role: user.role });
+    res.json({ 
+      token, 
+      role: user.role, 
+      user: { 
+        id: user._id, 
+        email: user.email, 
+        role: user.role, 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        dateOfBirth: user.dateOfBirth, 
+        photo: user.photo, 
+        bio: user.bio 
+      } 
+    });
   } catch (err) {
     console.error('Erreur lors de la connexion:', err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
+  }
+});
+
+// Update user profile
+router.put('/me', auth(['admin', 'formateur', 'apprenant']), upload.single('photo'), async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, dateOfBirth, bio } = req.body;
+    const photo = req.file ? req.file.filename : undefined;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+      }
+      user.email = email;
+    }
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : undefined;
+    if (photo) user.photo = photo;
+    if (bio !== undefined) user.bio = bio;
+
+    await user.save();
+
+    res.json({ 
+      message: 'Profil mis à jour avec succès', 
+      user: { 
+        id: user._id, 
+        email: user.email, 
+        role: user.role, 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        dateOfBirth: user.dateOfBirth, 
+        photo: user.photo, 
+        bio: user.bio 
+      } 
+    });
+  } catch (err) {
+    console.error('Erreur lors de la mise à jour du profil:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
+  }
+});
+
+// Get current user profile
+router.get('/me', auth(['admin', 'formateur', 'apprenant']), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+    res.json({ 
+      user: { 
+        id: user._id, 
+        email: user.email, 
+        role: user.role, 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        dateOfBirth: user.dateOfBirth, 
+        photo: user.photo, 
+        bio: user.bio 
+      } 
+    });
+  } catch (err) {
+    console.error('Erreur lors de la récupération du profil:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
 // CRUD Routes for Users (Admin Only)
-
-// Get all users (formateurs and apprenants)
 router.get('/users', authAdmin, async (req, res) => {
   try {
     const users = await User.find({ role: { $in: ['formateur', 'apprenant'] } }).select('-password');
     res.json(users);
   } catch (err) {
-    console.error('Error fetching users:', err);
-    res.status(500).json({ message: err.message });
+    console.error('Erreur lors de la récupération des utilisateurs:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
-// Get a single user by ID
 router.get('/users/:id', authAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
     if (!['formateur', 'apprenant'].includes(user.role)) {
-      return res.status(403).json({ message: 'Utilisateur n\'est ni formateur ni apprenant' });
+      return res.status(403).json({ error: 'Utilisateur n\'est ni formateur ni apprenant' });
     }
     res.json(user);
   } catch (err) {
-    console.error('Error fetching user by ID:', err);
-    res.status(500).json({ message: err.message });
+    console.error('Erreur lors de la récupération de l\'utilisateur:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
-// Create a new user (formateur or apprenant)
 router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
   const { email, password, role, firstName, lastName, dateOfBirth, bio } = req.body;
   const photo = req.file ? req.file.filename : undefined;
 
   try {
     if (!['formateur', 'apprenant'].includes(role)) {
-      return res.status(400).json({ message: 'Rôle invalide. Doit être formateur ou apprenant.' });
+      return res.status(400).json({ error: 'Rôle invalide. Doit être formateur ou apprenant.' });
     }
 
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: 'Utilisateur déjà existant' });
-    }
-
-    if (!photo) {
-      return res.status(400).json({ message: 'Une photo est requise pour créer un utilisateur.' });
+      return res.status(400).json({ error: 'Utilisateur déjà existant' });
     }
 
     user = new User({
@@ -160,7 +239,7 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
       role,
       firstName,
       lastName,
-      dateOfBirth,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
       photo,
       bio
     });
@@ -173,7 +252,7 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
     res.status(201).json({ 
       message: 'Utilisateur créé avec succès', 
       user: { 
-        id: user.id, 
+        id: user._id, 
         email: user.email, 
         role: user.role, 
         firstName: user.firstName, 
@@ -184,12 +263,11 @@ router.post('/users', authAdmin, upload.single('photo'), async (req, res) => {
       } 
     });
   } catch (err) {
-    console.error('Error creating user:', err);
-    res.status(500).json({ message: err.message });
+    console.error('Erreur lors de la création de l\'utilisateur:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
-// Update a user
 router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => {
   const { email, password, role, firstName, lastName, dateOfBirth, bio } = req.body;
   const photo = req.file ? req.file.filename : undefined;
@@ -197,14 +275,20 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
     if (role && !['formateur', 'apprenant'].includes(role)) {
-      return res.status(400).json({ message: 'Rôle invalide. Doit être formateur ou apprenant.' });
+      return res.status(400).json({ error: 'Rôle invalide. Doit être formateur ou apprenant.' });
     }
 
-    if (email) user.email = email;
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+      }
+      user.email = email;
+    }
     if (password) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
@@ -212,7 +296,7 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
     if (role) user.role = role;
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
-    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : undefined;
     if (photo) user.photo = photo;
     if (bio !== undefined) user.bio = bio;
 
@@ -221,7 +305,7 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
     res.json({ 
       message: 'Utilisateur mis à jour avec succès', 
       user: { 
-        id: user.id, 
+        id: user._id, 
         email: user.email, 
         role: user.role, 
         firstName: user.firstName, 
@@ -232,29 +316,38 @@ router.put('/users/:id', authAdmin, upload.single('photo'), async (req, res) => 
       } 
     });
   } catch (err) {
-    console.error('Error updating user:', err);
-    res.status(500).json({ message: err.message });
+    console.error('Erreur lors de la mise à jour de l\'utilisateur:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 
-// Delete a user
 router.delete('/users/:id', authAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
     if (!['formateur', 'apprenant'].includes(user.role)) {
-      return res.status(403).json({ message: 'Utilisateur n\'est ni formateur ni apprenant' });
+      return res.status(403).json({ error: 'Utilisateur n\'est ni formateur ni apprenant' });
     }
 
-    await user.deleteOne(); // Use deleteOne() instead of deprecated remove()
-    console.log(`User with ID ${req.params.id} deleted successfully`);
+    await User.deleteOne({ _id: req.params.id });
     res.json({ message: 'Utilisateur supprimé avec succès' });
   } catch (err) {
-    console.error('Error deleting user:', err);
-    res.status(500).json({ message: err.message });
+    console.error('Erreur lors de la suppression de l\'utilisateur:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
+  }
+});
+
+// Get all instructors (formateurs)
+router.get('/instructors', auth(['admin']), async (req, res) => {
+  try {
+    const instructors = await User.find({ role: 'formateur' }).select('firstName lastName email _id');
+    res.json(instructors);
+  } catch (err) {
+    console.error('Erreur lors de la récupération des formateurs:', err);
+    res.status(500).json({ error: 'Erreur serveur', message: err.message });
   }
 });
 

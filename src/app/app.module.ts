@@ -29,6 +29,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { FormateurCoursesComponent } from './components/formateur-courses/formateur-courses.component';
 import { ApprenantCoursesComponent } from './components/apprenant-courses/apprenant-courses.component';
 import { DiscountedEnrollmentComponent } from './components/discounted-enrollment/discounted-enrollment.component';
+import { ProfileComponent } from './components/profile/profile.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -53,6 +54,7 @@ import { DiscountedEnrollmentComponent } from './components/discounted-enrollmen
     FormateurCoursesComponent,
     ApprenantCoursesComponent,
     DiscountedEnrollmentComponent,
+    ProfileComponent,
 
   ],
   imports: [

@@ -1,0 +1,28 @@
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.alert {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-primary:hover {
+  background-color: #003d82;
+  border-color: #003d82;
+}
+
+.rounded-circle {
+  object-fit: cover;
+  width: 150px;
+  height: 150px;
+}

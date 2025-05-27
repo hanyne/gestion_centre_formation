@@ -47,7 +47,6 @@ export class GestionformationComponent implements OnInit {
   loadInstructors(): void {
     this.userService.getInstructors().subscribe({
       next: (users) => {
-        // Filter users to only include those with role 'formateur'
         this.instructors = users.filter((user: any) => user.role === 'formateur');
         console.log('Filtered instructors:', this.instructors);
       },
@@ -98,6 +97,8 @@ export class GestionformationComponent implements OnInit {
     };
     this.newCourseImageFile = null;
     this.newCourseImagePreview = null;
+    this.successMessage = '';
+    this.errorMessage = '';
     const modalElement = document.getElementById('createCourseModal');
     if (modalElement) {
       const modal = new (window as any).bootstrap.Modal(modalElement);
@@ -126,7 +127,6 @@ export class GestionformationComponent implements OnInit {
 
     this.courseService.createCourse(formData).subscribe({
       next: (course) => {
-        this.courses.push(course);
         this.successMessage = 'Formation créée avec succès !';
         this.newCourse = {
           _id: '',
@@ -142,9 +142,13 @@ export class GestionformationComponent implements OnInit {
         this.newCourseImageFile = null;
         this.newCourseImagePreview = null;
         this.closeModal('createCourseModal');
+        setTimeout(() => {
+          this.successMessage = '';
+          this.loadCourses();
+        }, 2000); // Refresh after 2 seconds
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors de la création de la formation : ' + (err.error?.message || err.message);
+        this.errorMessage = 'Erreur lors de la création de la formation : ' + (err.error?.error || err.message);
         console.error('Error creating course:', err);
       }
     });
@@ -158,6 +162,8 @@ export class GestionformationComponent implements OnInit {
     this.selectedCourse = { ...course };
     this.selectedCourseImageFile = null;
     this.selectedCourseImagePreview = null;
+    this.successMessage = '';
+    this.errorMessage = '';
     const modalElement = document.getElementById('editCourseModal');
     if (modalElement) {
       const modal = new (window as any).bootstrap.Modal(modalElement);
@@ -189,17 +195,17 @@ export class GestionformationComponent implements OnInit {
 
     this.courseService.updateCourse(formData).subscribe({
       next: (updatedCourse) => {
-        const index = this.courses.findIndex(c => c._id === updatedCourse._id);
-        if (index !== -1) {
-          this.courses[index] = updatedCourse;
-        }
         this.successMessage = 'Formation mise à jour avec succès !';
         this.selectedCourseImageFile = null;
         this.selectedCourseImagePreview = null;
         this.closeModal('editCourseModal');
+        setTimeout(() => {
+          this.successMessage = '';
+          this.loadCourses();
+        }, 2000); // Refresh after 2 seconds
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors de la mise à jour de la formation : ' + (err.error?.message || err.message);
+        this.errorMessage = 'Erreur lors de la mise à jour de la formation : ' + (err.error?.error || err.message);
         console.error('Error updating course:', err);
       }
     });
@@ -214,11 +220,14 @@ export class GestionformationComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
       this.courseService.deleteCourse(id).subscribe({
         next: () => {
-          this.courses = this.courses.filter(c => c._id !== id);
           this.successMessage = 'Formation supprimée avec succès !';
+          setTimeout(() => {
+            this.successMessage = '';
+            this.loadCourses();
+          }, 2000); // Refresh after 2 seconds
         },
         error: (err) => {
-          this.errorMessage = 'Erreur lors de la suppression de la formation : ' + (err.error?.message || err.message);
+          this.errorMessage = 'Erreur lors de la suppression de la formation : ' + (err.error?.error || err.message);
           console.error('Error deleting course:', err);
         }
       });

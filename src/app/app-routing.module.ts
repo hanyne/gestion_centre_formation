@@ -22,6 +22,7 @@ import { ApprenantCoursesComponent } from './components/apprenant-courses/appren
 import { InstructorGuard } from './guards/instructor-guard.service';
 import { ApprenantGuard } from './guards/apprenant.guard';
 import { DiscountedEnrollmentComponent } from './components/discounted-enrollment/discounted-enrollment.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -41,6 +42,7 @@ const routes: Routes = [
   { path: 'course-schedule/:id', component: CoursescheduleComponent },
   { path: 'gestionpaiement/:id', component: GestionPaiementComponent }, 
   { path: 'admin/review', component: AdminReviewsComponent },
+  { path: 'profile', component: ProfileComponent },
   { path: 'instructor-schedule', component: FormateurCoursesComponent,canActivate: [InstructorGuard]},
   { path: 'apprenant-courses', component: ApprenantCoursesComponent, canActivate: [ApprenantGuard] }, 
   

@@ -2,6 +2,9 @@ export interface User {
   _id: string;
   email: string;
   role: 'apprenant' | 'formateur' | 'admin';
-  nom?: string;
-  prenom?: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: Date | string;
+  photo?: string;
+  bio?: string;
 }
