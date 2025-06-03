@@ -341,9 +341,13 @@ router.delete('/users/:id', authAdmin, async (req, res) => {
 });
 
 // Get all instructors (formateurs)
+// Get all instructors (formateurs)
 router.get('/instructors', auth(['admin']), async (req, res) => {
   try {
     const instructors = await User.find({ role: 'formateur' }).select('firstName lastName email _id');
+    if (!instructors || instructors.length === 0) {
+      return res.status(404).json({ error: 'Aucun formateur trouvé' });
+    }
     res.json(instructors);
   } catch (err) {
     console.error('Erreur lors de la récupération des formateurs:', err);

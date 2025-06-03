@@ -17,12 +17,13 @@ export class GestionformationComponent implements OnInit {
     _id: '',
     title: '',
     description: '',
-    instructor: { _id: '', email: '' },
+    instructor: { _id: '', email: '', firstName: '', lastName: '' }, // Include all fields for display
     image: '',
     rating: 0,
     duration: '',
     price: 0,
-    createdAt: new Date()
+    createdAt: new Date(),
+    schedule: []
   };
   selectedCourse: Course = { ...this.newCourse };
   successMessage: string = '';
@@ -46,12 +47,15 @@ export class GestionformationComponent implements OnInit {
 
   loadInstructors(): void {
     this.userService.getInstructors().subscribe({
-      next: (users) => {
-        this.instructors = users.filter((user: any) => user.role === 'formateur');
-        console.log('Filtered instructors:', this.instructors);
+      next: (instructors) => {
+        this.instructors = instructors; // No need to filter, backend already returns formateurs
+        console.log('Instructors loaded:', this.instructors);
+        if (this.instructors.length === 0) {
+          this.errorMessage = 'Aucun formateur disponible. Veuillez créer un formateur d\'abord.';
+        }
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement des formateurs : ' + err.message;
+        this.errorMessage = 'Erreur lors du chargement des formateurs : ' + (err.error?.error || err.message);
         console.error('Error loading instructors:', err);
       }
     });
@@ -61,9 +65,10 @@ export class GestionformationComponent implements OnInit {
     this.courseService.getCourses().subscribe({
       next: (courses) => {
         this.courses = courses;
+        console.log('Courses loaded:', this.courses);
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement des formations : ' + err.message;
+        this.errorMessage = 'Erreur lors du chargement des formations : ' + (err.error?.error || err.message);
         console.error('Error loading courses:', err);
       }
     });
@@ -88,12 +93,13 @@ export class GestionformationComponent implements OnInit {
       _id: '',
       title: '',
       description: '',
-      instructor: { _id: '', email: '' },
+      instructor: { _id: '', email: '', firstName: '', lastName: '' },
       image: '',
       rating: 0,
       duration: '',
       price: 0,
-      createdAt: new Date()
+      createdAt: new Date(),
+      schedule: []
     };
     this.newCourseImageFile = null;
     this.newCourseImagePreview = null;
@@ -110,7 +116,7 @@ export class GestionformationComponent implements OnInit {
 
   createCourse(): void {
     if (!this.newCourse.title || !this.newCourse.description || !this.newCourse.instructor._id) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires (titre, description, formateur).';
       return;
     }
 
@@ -124,6 +130,10 @@ export class GestionformationComponent implements OnInit {
     if (this.newCourseImageFile) {
       formData.append('image', this.newCourseImageFile);
     }
+    // Include schedule if present
+    if (this.newCourse.schedule && this.newCourse.schedule.length > 0) {
+      formData.append('schedule', JSON.stringify(this.newCourse.schedule));
+    }
 
     this.courseService.createCourse(formData).subscribe({
       next: (course) => {
@@ -132,12 +142,13 @@ export class GestionformationComponent implements OnInit {
           _id: '',
           title: '',
           description: '',
-          instructor: { _id: '', email: '' },
+          instructor: { _id: '', email: '', firstName: '', lastName: '' },
           image: '',
           rating: 0,
           duration: '',
           price: 0,
-          createdAt: new Date()
+          createdAt: new Date(),
+          schedule: []
         };
         this.newCourseImageFile = null;
         this.newCourseImagePreview = null;
@@ -145,7 +156,7 @@ export class GestionformationComponent implements OnInit {
         setTimeout(() => {
           this.successMessage = '';
           this.loadCourses();
-        }, 2000); // Refresh after 2 seconds
+        }, 2000);
       },
       error: (err) => {
         this.errorMessage = 'Erreur lors de la création de la formation : ' + (err.error?.error || err.message);
@@ -159,7 +170,16 @@ export class GestionformationComponent implements OnInit {
       this.errorMessage = 'ID de la formation manquant.';
       return;
     }
-    this.selectedCourse = { ...course };
+    // Ensure instructor object has all necessary fields
+    this.selectedCourse = {
+      ...course,
+      instructor: {
+        _id: course.instructor?._id || '',
+        email: course.instructor?.email || '',
+        firstName: course.instructor?.firstName || '',
+        lastName: course.instructor?.lastName || ''
+      }
+    };
     this.selectedCourseImageFile = null;
     this.selectedCourseImagePreview = null;
     this.successMessage = '';
@@ -174,8 +194,8 @@ export class GestionformationComponent implements OnInit {
   }
 
   updateCourse(): void {
-    if (!this.selectedCourse._id) {
-      this.errorMessage = 'ID de la formation manquant pour la mise à jour.';
+    if (!this.selectedCourse._id || !this.selectedCourse.title || !this.selectedCourse.description || !this.selectedCourse.instructor._id) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires (titre, description, formateur).';
       return;
     }
 
@@ -192,6 +212,10 @@ export class GestionformationComponent implements OnInit {
     } else {
       formData.append('imagePath', this.selectedCourse.image || '');
     }
+    // Include schedule if present
+    if (this.selectedCourse.schedule && this.selectedCourse.schedule.length > 0) {
+      formData.append('schedule', JSON.stringify(this.selectedCourse.schedule));
+    }
 
     this.courseService.updateCourse(formData).subscribe({
       next: (updatedCourse) => {
@@ -202,7 +226,7 @@ export class GestionformationComponent implements OnInit {
         setTimeout(() => {
           this.successMessage = '';
           this.loadCourses();
-        }, 2000); // Refresh after 2 seconds
+        }, 2000);
       },
       error: (err) => {
         this.errorMessage = 'Erreur lors de la mise à jour de la formation : ' + (err.error?.error || err.message);
@@ -224,7 +248,7 @@ export class GestionformationComponent implements OnInit {
           setTimeout(() => {
             this.successMessage = '';
             this.loadCourses();
-          }, 2000); // Refresh after 2 seconds
+          }, 2000);
         },
         error: (err) => {
           this.errorMessage = 'Erreur lors de la suppression de la formation : ' + (err.error?.error || err.message);
