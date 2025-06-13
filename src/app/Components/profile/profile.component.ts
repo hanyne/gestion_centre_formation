@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
   showPassword: boolean = false;
+  isLoading: boolean = false; // Indicateur de chargement
   @ViewChild('photoInput') photoInput!: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -60,6 +61,9 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage = 'Erreur lors du chargement du profil : ' + (err.error?.error || err.message);
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000); // Uniformiser à 5 secondes
         if (err.status === 401) {
           this.authService.logout();
           this.router.navigate(['/login']);
@@ -81,9 +85,13 @@ export class ProfileComponent implements OnInit {
     if (this.profileForm.invalid) {
       this.errorMessage = 'Veuillez vérifier les champs obligatoires.';
       this.profileForm.markAllAsTouched();
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 5000);
       return;
     }
 
+    this.isLoading = true; // Activer l'indicateur de chargement
     const formData = new FormData();
     formData.append('email', this.profileForm.get('email')?.value);
     if (this.profileForm.get('password')?.value) {
@@ -98,18 +106,20 @@ export class ProfileComponent implements OnInit {
     }
 
     this.userService.updateProfile(formData).subscribe({
-      next: (response) => {
-        this.successMessage = response.message;
-        this.loadProfile(); // Auto-refresh profile data
+      next: () => {
+        this.successMessage = 'Profil mis à jour avec succès !';
+        this.loadProfile(); // Actualiser les données
+        this.isLoading = false;
         setTimeout(() => {
           this.successMessage = '';
-        }, 2000);
+        }, 5000); // Message disparaît après 5 secondes
       },
       error: (err) => {
         this.errorMessage = 'Erreur lors de la mise à jour du profil : ' + (err.error?.error || err.message);
+        this.isLoading = false;
         setTimeout(() => {
           this.errorMessage = '';
-        }, 3000);
+        }, 5000);
       }
     });
   }

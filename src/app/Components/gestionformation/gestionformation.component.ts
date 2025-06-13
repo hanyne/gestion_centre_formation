@@ -306,4 +306,5 @@ export class GestionformationComponent implements OnInit {
       this.errorMessage = 'ID de la formation manquant.';
     }
   }
+  
 }

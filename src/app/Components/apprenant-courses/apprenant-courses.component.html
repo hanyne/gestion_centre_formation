@@ -17,9 +17,6 @@
         <h1 class="text-2xl font-bold"><i class="fa fa-book-reader mr-2"></i>Idéal Academy</h1>
       </a>
       <nav class="space-y-2">
-        <a routerLink="/dash" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition text-white no-underline" title="Tableau de Bord">
-          <i class="fas fa-tachometer-alt mr-2"></i>Tableau de Bord
-        </a>
         <a routerLink="/apprenant-courses" class="block py-2 px-4 rounded-lg bg-gray-700 text-white no-underline" title="Mes Formations">
           <i class="fas fa-calendar-alt mr-2"></i>Mes Formations
         </a>
@@ -35,26 +32,31 @@
       <div class="bg-white shadow-lg rounded-xl p-6 mb-8 flex justify-between items-center">
         <h2 class="text-3xl font-bold text-gray-900">Mes Formations Payées</h2>
         <div class="flex items-center space-x-4">
-          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Apprenant" class="w-12 h-12 rounded-full">
-          <span class="text-gray-700 font-medium">Apprenant</span>
+          <ng-container *ngIf="currentUser?.photo; else noPhoto">
+            <img [src]="getPhotoUrl(currentUser?.photo)" alt="Photo de {{ currentUser?.firstName }}" class="w-12 h-12 rounded-full" (error)="onImageError($event)">
+          </ng-container>
+          <ng-template #noPhoto>
+            <i class="fas fa-user-circle text-gray-500 text-3xl"></i>
+          </ng-template>
+          <span class="text-gray-700 font-medium">{{ currentUser?.firstName || 'Apprenant' }} {{ currentUser?.lastName || '' }}</span>
         </div>
       </div>
 
       <!-- Sorting Buttons -->
       <div class="mb-4">
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded mr-2" (click)="sortBy('day')">Trier par Jour</button>
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded" (click)="sortBy('date')">Trier par Date</button>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded mr-2 hover:bg-indigo-700 transition" (click)="sortBy('day')">Trier par Jour</button>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" (click)="sortBy('date')">Trier par Date</button>
       </div>
 
       <!-- Error Message -->
-      <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg animate__animated animate__bounceIn">{{ errorMessage }}</div>
 
       <!-- Enrollments List -->
       <div *ngIf="enrollments.length === 0 && !errorMessage" class="bg-white shadow-lg rounded-xl p-6 text-center text-gray-500">
         Aucune formation payée trouvée.
       </div>
 
-      <div *ngFor="let enrollment of enrollments" class="bg-white shadow-lg rounded-xl overflow-hidden mb-6">
+      <div *ngFor="let enrollment of enrollments" class="bg-white shadow-lg rounded-xl overflow-hidden mb-6 animate__animated animate__fadeIn">
         <div class="p-6 bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
           <h3 class="text-xl font-semibold">{{ enrollment.course.title }}</h3>
         </div>

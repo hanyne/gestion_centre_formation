@@ -1,8 +1,8 @@
-// apprenant-courses.component.ts
 import { Component, OnInit } from '@angular/core';
 import { EnrollmentService } from '../../services/enrollement.service';
 import { AuthService } from '../../services/auth.service';
 import { Enrollment } from '../../model/enrollement';
+import { User } from '../../model/user';
 
 @Component({
   selector: 'app-apprenant-courses',
@@ -12,6 +12,7 @@ import { Enrollment } from '../../model/enrollement';
 export class ApprenantCoursesComponent implements OnInit {
   enrollments: Enrollment[] = [];
   errorMessage: string = '';
+  currentUser: User | null = null;
 
   constructor(
     private enrollmentService: EnrollmentService,
@@ -19,6 +20,7 @@ export class ApprenantCoursesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
     if (this.authService.isLoggedIn()) {
       if (!this.authService.isApprenant()) {
         this.errorMessage = 'Accès réservé aux apprenants.';
@@ -45,6 +47,19 @@ export class ApprenantCoursesComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  getPhotoUrl(photo: string | undefined): string {
+    if (photo && photo !== 'undefined' && photo !== '') {
+      const path = photo.startsWith('Uploads/') ? photo : `Uploads/${photo}`;
+      return `http://localhost:5000/${path}`;
+    }
+    return ''; // Retourne une chaîne vide pour éviter l'image par défaut
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none'; // Masquer l'image en cas d'erreur
   }
 
   private sortKey: string = 'day';
